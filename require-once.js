@@ -1,7 +1,7 @@
 (function(context){
     function saferEval(code){
         if (this !== context){
-            return safeEval.apply(context, code);
+            return saferEval.apply(context, code);
         }
 
         var module = {},
