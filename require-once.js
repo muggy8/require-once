@@ -21,39 +21,18 @@
 		
         var registry = {};
 		
-        var attemptAjaxGet = function(url, callback, attempts){
-            attempts = attempts || 1;
-
-            var xmlhttp = new XMLHttpRequest();
-
-            xmlhttp.onreadystatechange = function() {
-                if (xmlhttp.readyState == XMLHttpRequest.DONE ) {
-                    if (xmlhttp.status >= 200 && xmlhttp.status < 300) {
-                        callback(xmlhttp.responseText);
-                    }
-                    else if (attempts < 500) {
-                        setTimeOut(function(){
-                            attemptAjaxGet(url, callback, attempts+1);
-                        }, attempts*100);
-                    }
-                    else {
-                        callback(null);
-                    }
-                }
-            };
-
-            xmlhttp.open("GET", dependencies[i], true);
-            xmlhttp.send();
-        }; 
-		
 		var seekOrGet = function(url, callback){
 			
+			// already loaded and is in cache
 			if (registry[url] && registry[url].result){
 				callback(null, registry[url].exported, registry[url].ajax.getResponseHeader("Content-Type"));
 			}
+			// is currently in the process of fetching 
 			else if (registry[url] && !registry[url].result){
 				registry[url].waiters.push(callback);
 			}
+			
+			// is a completely new URL not known yet
 			else {
 				var queue = registry[url] = {
 					waiters: [callback], 
