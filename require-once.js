@@ -4,61 +4,70 @@
             return safeEval.apply(context, code);
         }
 
-        var module = {}
-        var exporter = module.exports = module.export = function(output){
-            module.exports = output;
-        }
-        var results = eval(code);
+        var module = {},
+            exporter = module.exports = module.export = function(output){
+                module.exports = output;
+            },
+            results = eval(code);
+
+        // is node package and get the module.exports and return it to the caller
         if (module.exports != exporter){
             return module.exports;
         }
+        // maybe the code returned something? return that to caller
 		else if (results) {
 			return results;
 		}
+        // code has no outputs, let the caller know that the code evaluated successfully.
+        return true;
     }
 
     (function(){
         var registry = {};
-		
+
 		var seekOrGet = function(url, callback){
 			var registryEntry = registry[url];
 			// already loaded and is in cache
 			if (registryEntry && registryEntry.result){
 				callback(null, registryEntry.exported, registryEntry.ajax.getResponseHeader("Content-Type"));
 			}
-			// is currently in the process of fetching 
+			// is currently in the process of fetching
 			else if (registryEntry && !registryEntry.result){
 				registryEntry.waiters.push(callback);
 			}
-			
+
 			// is a completely new URL not known yet
 			else {
 				var queue = registry[url] = {
-					waiters: [callback], 
+					waiters: [callback],
 					attempts: 1
 				};
-				
+
 				function attemptConnection (){
-					var connection = queue.ajax = new XMLHttpRequest(); 
-						
+					var connection = queue.ajax = new XMLHttpRequest();
+
 					connection.onreadystatechange = function(){
-						
+
 						if (connection.readyState == XMLHttpRequest.DONE){
-							
+
 							if (connection.status >= 200 && connection.status < 300) {
 								// success
 								for (var i = 0; i < queue.waiters.length; i++){
 									queue.result = connection.responseText;
-									queue.waiters[i](connection.status, connection.responseText, connection.getResponseHeader("Content-Type"));
+                                    var contentType = connection.getResponseHeader("Content-Type")
+                                    if (contentType.match(/json/) || contentType.match(/javascript/)){
+                                        queue.exported = saferEval(queue.result);
+                                    }
+									queue.waiters[i](connection.status, queue.exported, connection.getResponseHeader("Content-Type"));
 								}
 							}
-							
+
 							else if (queue.attempts < 5){
 								// retry this process
 								queue.attempts++;
-								setTime(attemptConnection, queue.attempts*100);
+								setTimeout(attemptConnection, queue.attempts*100);
 							}
-							
+
 							else {
 								// asset failed to load.
 								for (var i = 0; i < queue.waiters.length; i++){
@@ -73,54 +82,42 @@
 				}
 				attemptConnection();
 			}
-		} 
+		}
 
     	context.requireOnce = context.require_once = function(dependencies, callback, failed){
+
 			failed = failed || function(){};
-    		var obtainedDependencies = [];
+    		var obtainedDependencies = [],
+                numberReturned = 0;
+
 			for (var i = 0; i < dependencies.length; i++) {
-				var index = i, 
+				var index = i,
 					dependency = dependencies[i];
                 seekOrGet(dependency, function(statusCode, responce, contentType){
+                    numberReturned++;
+
 					if (responce){
-						if (contentType.match(/json/) || contentType.match(/javascript/)) {
-							obtainedDependencies[index] = registry[dependency].exported = saferEval(responce);
-						}
-						else {
-							obtainedDependencies[index] = responce;
-						}
+                        obtainedDependencies[index] = responce;
 					}
 					else {
 						obtainedDependencies[index] = false;
 					}
-					
-					if (obtainedDependencies.length === dependencies.length){
-						
-						var loadErrorFlag = false,
-							loadNotDoneFlag = false;
-						
-						for (var j = 0; j < obtainedDependencies.length; j++){
-							if (obtainedDependencies[j]){
-								if (
-									obtainedDependencies[j] === false || 
-									!registry[dependency] || 
-									!registry[dependency].result
-								){
-									loadErrorFlag = true;
-								}
-							}
-							else {
-								loadNotDoneFlag = true;
-							}
-						}
-						
-						if (!loadErrorFlag && !loadNotDoneFlag) {
-							callback.apply(context, obtainedDependencies);
-						}
-						else if (loadErrorFlag && !loadNotDoneFlag) {
-							failed.apply(context, obtainedDependencies);
-						}
-					}
+
+                    if (numberReturned == dependencies.length){ // all dependencies have returned
+                        var callFail = false;
+                        for (var j = 0; j < obtainedDependencies.length; j++){
+                            if (obtainedDependencies[j] === false){
+                                callFail = true;
+                            }
+                        }
+                        
+                        if (callFail){
+                            failed.apply(context, obtainedDependencies);
+                        }
+                        else {
+                            callback.apply(context, obtainedDependencies);
+                        }
+                    }
 				});
     		}
     	};
