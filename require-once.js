@@ -34,7 +34,7 @@
 			
 			// is a completely new URL not known yet
 			else {
-				var queue = registryEntry = {
+				var queue = registry[url] = {
 					waiters: [callback], 
 					attempts: 1
 				};
@@ -77,6 +77,7 @@
 		} 
 
     	context.requireOnce = context.require_once = function(dependencies, callback, failed){
+			failed = failed || function(){};
     		var obtainedDependencies = [];
 			for (var i = 0; i < dependencies.length; i++) {
 				var index = i, 
