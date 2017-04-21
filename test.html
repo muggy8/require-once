@@ -5,27 +5,9 @@
 	<body>
 		<script src="require-once.min.js"></script>
 		<script>
-			requireOnce(["https://unpkg.com/do-async@latest"], function (doAsync){
+			requireOnce(["https://unpkg.com/do-async@latest", "/extra-require.js"], function (doAsync){
 				console.log(doAsync);
 			})
-
-            requireOnce([
-                'https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js',
-                'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css',
-                'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
-                'https://ajax.googleapis.com/ajax/libs/hammerjs/2.0.8/hammer.min.js',
-
-            ], function(jquery, uiCSS, jqueryUI, hammerjs){
-                $("head")
-                    .append(
-                        $("<style></style>").text(uiCSS)
-                    )
-
-                new Hammer($("body")[0])
-                    .on("tap", function(ev){
-                        console.log("Eeeww I've been touched");
-                    });
-            });
 		</script>
 	</body>
 </html>
