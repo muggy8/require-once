@@ -107,7 +107,7 @@
 									!registry[dependency] || 
 									!registry[dependency].result
 								){
-									loadFailFlag = true;
+									loadErrorFlag = true;
 								}
 							}
 							else {
@@ -119,7 +119,7 @@
 							callback.apply(context, obtainedDependencies);
 						}
 						else if (loadErrorFlag && !loadNotDoneFlag) {
-							failed.apply(context. obtainedDependencies);
+							failed.apply(context, obtainedDependencies);
 						}
 					}
 				});
