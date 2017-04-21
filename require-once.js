@@ -18,7 +18,6 @@
     }
 
     (function(){
-		
         var registry = {};
 		
 		var seekOrGet = function(url, callback){
