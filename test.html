@@ -4,6 +4,11 @@
 	</head>
 	<body>
 		<script src="require-once.js"></script>
-		<script></script>
+		<script>
+			
+			requireOnce(["https://unpkg.com/do-async@latest"], function (doAsync){
+				console.log(doAsync);
+			})
+		</script>
 	</body>
 </html>
