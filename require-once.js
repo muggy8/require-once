@@ -29,7 +29,7 @@
 			var registryEntry = registry[url];
 			// already loaded and is in cache
 			if (registryEntry && registryEntry.result){
-				callback(null, registryEntry.exported, registryEntry.ajax.getResponseHeader("Content-Type"));
+				callback(registryEntry.ajax.status, registryEntry.exported, registryEntry.ajax.getResponseHeader("Content-Type"));
 			}
 			// is currently in the process of fetching
 			else if (registryEntry && !registryEntry.result){
@@ -58,7 +58,7 @@
                                     if (contentType.match(/json/) || contentType.match(/javascript/)){
                                         queue.exported = saferEval(queue.result);
                                     }
-									queue.waiters[i](connection.status, queue.exported, connection.getResponseHeader("Content-Type"));
+									queue.waiters[i](connection.status, queue.exported, contentType);
 								}
 							}
 
@@ -110,7 +110,7 @@
                                 callFail = true;
                             }
                         }
-                        
+
                         if (callFail){
                             failed.apply(context, obtainedDependencies);
                         }
