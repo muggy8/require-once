@@ -17,40 +17,40 @@
 		}
     }
 
-    var scopeProtector = function(){
+    (function(){
 		
         var registry = {};
 		
 		var seekOrGet = function(url, callback){
-			
+			var registryEntry = registry[url];
 			// already loaded and is in cache
-			if (registry[url] && registry[url].result){
-				callback(null, registry[url].exported, registry[url].ajax.getResponseHeader("Content-Type"));
+			if (registryEntry && registryEntry.result){
+				callback(null, registryEntry.exported, registryEntry.ajax.getResponseHeader("Content-Type"));
 			}
 			// is currently in the process of fetching 
-			else if (registry[url] && !registry[url].result){
-				registry[url].waiters.push(callback);
+			else if (registryEntry && !registryEntry.result){
+				registryEntry.waiters.push(callback);
 			}
 			
 			// is a completely new URL not known yet
 			else {
-				var queue = registry[url] = {
+				var queue = registryEntry = {
 					waiters: [callback], 
 					attempts: 1
 				};
 				
 				function attemptConnection (){
-					queue.ajax = new XMLHttpRequest(); 
+					var connection = queue.ajax = new XMLHttpRequest(); 
 						
-					queue.ajax.onreadystatechange = function(){
+					connection.onreadystatechange = function(){
 						
-						if (queue.ajax.readyState == XMLHttpRequest.DONE){
+						if (connection.readyState == XMLHttpRequest.DONE){
 							
-							if (queue.ajax.status >= 200 && queue.ajax.status < 300) {
+							if (connection.status >= 200 && connection.status < 300) {
 								// success
 								for (var i = 0; i < queue.waiters.length; i++){
-									queue.result = queue.ajax.responseText;
-									queue.waiters[i](queue.ajax.status, queue.ajax.responseText, queue.ajax.getResponseHeader("Content-Type"));
+									queue.result = connection.responseText;
+									queue.waiters[i](connection.status, connection.responseText, connection.getResponseHeader("Content-Type"));
 								}
 							}
 							
@@ -63,14 +63,14 @@
 							else {
 								// asset failed to load.
 								for (var i = 0; i < queue.waiters.length; i++){
-									queue.waiters[i](queue.ajax.status);
+									queue.waiters[i](connection.status);
 								}
 								delete registry[url];
 							}
 						}
 					}
-					queue.ajax.open("GET", url, true)
-					queue.ajax.send();
+					connection.open("GET", url, true)
+					connection.send();
 				}
 				attemptConnection();
 			}
@@ -79,11 +79,12 @@
     	context.requireOnce = context.require_once = function(dependencies, callback, failed){
     		var obtainedDependencies = [];
 			for (var i = 0; i < dependencies.length; i++) {
-				var index = i;
-                seekOrGet(dependencies[i], function(statusCode, responce, contentType){
+				var index = i, 
+					dependency = dependencies[i];
+                seekOrGet(dependency, function(statusCode, responce, contentType){
 					if (responce){
 						if (contentType.match(/json/) || contentType.match(/javascript/)) {
-							obtainedDependencies[index] = registry[dependencies[index]].exported = saferEval(responce);
+							obtainedDependencies[index] = registry[dependency].exported = saferEval(responce);
 						}
 						else {
 							obtainedDependencies[index] = responce;
@@ -102,8 +103,8 @@
 							if (obtainedDependencies[j]){
 								if (
 									obtainedDependencies[j] === false || 
-									!registry[dependencies[index]] || 
-									!registry[dependencies[index]].result
+									!registry[dependency] || 
+									!registry[dependency].result
 								){
 									loadFailFlag = true;
 								}
@@ -123,6 +124,5 @@
 				});
     		}
     	};
-    };
-    scopeProtector();
+    })();
 })(this);
