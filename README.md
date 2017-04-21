@@ -12,7 +12,7 @@ the library creates a requireOnce and require_once (alius) function in your glob
 
 ### requireOnce(array url, function callback[, function failedCallback])
 
-Full Usage Example:
+General usage example:
 ```javascipt
 requireOnce([
     'https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js',
@@ -94,4 +94,4 @@ In the above example. if we failed to load the required dependencies, we attempt
 and now that you are loading your dependencies and modules off the network in your javascipt, you can remove them from your html responses. however if you still have them there, there's really no harm since most browsers are pretty good about caching and reusing them. Ideally, the library will detect already loaded assets in the page but that would be too complicated so meh~
 
 ## Licence?
-MIT = free for all yay?  
+MIT = free for all yay?
