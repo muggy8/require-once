@@ -58,7 +58,7 @@
                                     if (contentType.match(/json/) || contentType.match(/javascript/)){
                                         queue.exported = saferEval(queue.result);
                                     }
-									queue.waiters[i](connection.status, queue.exported, contentType);
+									queue.waiters[i](connection.status, queue.exported || queue.result, contentType);
 								}
 							}
 
@@ -90,10 +90,11 @@
     		var obtainedDependencies = [],
                 numberReturned = 0;
 
-			for (var i = 0; i < dependencies.length; i++) {
-				var index = i,
-					dependency = dependencies[i];
+			//for (var i = 0; i < dependencies.length; i++) {
+            dependencies.forEach(function(dependency, index){
+
                 seekOrGet(dependency, function(statusCode, responce, contentType){
+
                     numberReturned++;
 
 					if (responce){
@@ -105,11 +106,12 @@
 
                     if (numberReturned == dependencies.length){ // all dependencies have returned
                         var callFail = false;
-                        for (var j = 0; j < obtainedDependencies.length; j++){
-                            if (obtainedDependencies[j] === false){
+
+                        obtainedDependencies.forEach(function(gotten){
+                            if (!gotten && gotten === false){
                                 callFail = true;
                             }
-                        }
+                        });
 
                         if (callFail){
                             failed.apply(context, obtainedDependencies);
@@ -119,7 +121,9 @@
                         }
                     }
 				});
-    		}
+
+            })
+
     	};
     })();
 })(this);
