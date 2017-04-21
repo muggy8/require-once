@@ -55,7 +55,7 @@
 								for (var i = 0; i < queue.waiters.length; i++){
 									queue.result = connection.responseText;
                                     var contentType = connection.getResponseHeader("Content-Type")
-                                    if (contentType.match(/json/) || contentType.match(/javascript/)){
+                                    if (contentType.match(/javascript/)){
                                         queue.exported = saferEval(queue.result);
                                     }
 									queue.waiters[i](connection.status, queue.exported || queue.result, contentType);
