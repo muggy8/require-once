@@ -41,7 +41,7 @@ If all the dependencies are loaded successfully, the success callback is called,
 If however the file loaded is not a javascrit file. the file's contents is passed directly in it's place. This way you can request any file (CSS, JSON, etc) and do with it what you want.
 
 ### failedCallback
-Because it loads stuff off a network, it might fail so you might want to prepare for situations for when the network fails your app. The 3rd callback is used to keep track of this and act as kind of a fallback. The enlargements are again passed to the function in listed order except dependencies that failed to load will have the value of false. With our example above, we can complete it like this:
+Because it loads stuff off a network, it might fail so you might want to prepare for situations for when the network fails your app. The 3rd callback is used to keep track of this and act as kind of a fallback. The arguments are again passed to the function in listed order except dependencies that failed to load will have the value of false. With our example above, we can complete it like this:
 
 ```javascipt
 requireOnce([
