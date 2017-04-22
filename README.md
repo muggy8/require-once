@@ -90,6 +90,36 @@ requireOnce([
 
 In the above example. if we failed to load the required dependencies, we attempt to load it via a regular Script or Link tag.
 
+## RequireOnce inside of RequireOnce?
+
+Yes you can call requireOnce inside of files that got required by requireOnce and they would share the same cache. This way if you have a large number of nested dependencies that depends on other things, you can feel free to just have one init.js in your main html response which then loads in other modules on the fly.
+
+Immagine the file structure below for your app.
+
+```
+- index.html
++ js
+  + ui
+    - topnav.js
+    - bottomNav.js
+  + auth
+    - login.js
+    - logout.js
+  + crypt
+    - genRSAKey.js
+    - rsa.js
+    - ase.js
+  + ajax
+    - httpGet.js
+    - httpPost.js
+  + app
+    - main.js
+    - helpers.js
++ css
+...
+```
+trying to maintain that as your project grows will become dificult as you forget that each tme you add a file, you'll need to add it to all the index pages and so on. but what if you just added a new dependency at the top of the file you're working on. for example you can have a rsa.js depend on genRSAKey.js and when you include rsa.js you automatically include the generator as well and when you init your app, your app will just get all the required stuff by itself.
+
 ## <script> tags in the index?
 and now that you are loading your dependencies and modules off the network in your javascipt, you can remove them from your html responses. however if you still have them there, there's really no harm since most browsers are pretty good about caching and reusing them. Ideally, the library will detect already loaded assets in the page but that would be too complicated so meh~
 
