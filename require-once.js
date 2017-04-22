@@ -126,4 +126,8 @@
 
     	};
     })();
+	
+	if (typeof module != 'undefined'){
+		module.exports = context.requireOnce;
+	};
 })(this);
