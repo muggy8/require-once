@@ -1,5 +1,5 @@
 {
-  "name": "require-once",
+  "name": "require_once",
   "version": "0.0.1",
   "description": "A file loader for browser javascript and eventually node as well",
   "main": "require-once.min.js",
