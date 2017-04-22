@@ -8,7 +8,7 @@ Require Once is a client (browser) javascipt that is inspired by requirejs but l
 You can either in-line the file in your JS at the top or you can add `<script src="path/to/require-once.min.js"></script>` to your project somewhere before you start using it.
 
 ## usage
-the library creates a requireOnce and require_once (alius) function in your global scope and you can call them to require your libraries from URLs.
+the library creates a requireOnce and require_once (alius) function in your global scope and you can call them to require your libraries from URLs. Please be advised that the URLs should be absolute paths (aka starting with "http(s)" or "/"). All paths are relative to the HTML document that the app is ran and not the path of the file the includeOnce is called in. as a result, it's the best to just make paths absolute.
 
 ### requireOnce(array url, function callback[, function failedCallback])
 
