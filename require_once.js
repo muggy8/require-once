@@ -117,7 +117,12 @@
 				var dependency;
 				if (typeof require != 'undefined' && typeof XMLHttpRequest == 'undefined'){ // inside node
 					dependency = mixedDependency.server
-					obtainedDependencies[index] = require(dependency);
+					if (dependency){
+						obtainedDependencies[index] = require(dependency);
+					}
+					else {
+						obtainedDependencies[index] = true;
+					}
 					numberReturned++;
 					attemptCallback();
 				}
