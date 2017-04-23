@@ -147,7 +147,7 @@ In the first line, we detect if require_once has been loaded and if not, require
 
 When requesting libraries, you can use the requireOnce and pass an array where each element is either a string for a URL or an object with a browser and server property. The browser property is of course the url to load the asset in the browser where as the server is the string to be passed into node's "require()" function.
 
-The library will take care of the rest with XMLHttpRequests while in the browser or via Require in node. if you do not pass a server property, or if you just use a string, the server wont bother trying to get the asset and will just return a false in that place. If this is the case you should have catches so when running your code on the server, you dont expect your asset to come in when a false is going to drop in it's place. 
+The library will take care of the rest with XMLHttpRequests while in the browser or via require() in node. if you do not pass a server property, or if you just use a string, the server wont bother trying to get the asset and will just return a false in that place. If this is the case you should have catches so when running your code on the server, you don't expect your asset to come in when a false is going to drop in it's place. 
 
 ## Licence?
 MIT = free for all yay?
