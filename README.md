@@ -123,5 +123,33 @@ trying to maintain that as your project grows will become difficult as you forge
 ## <script> tags in the index?
 and now that you are loading your dependencies and modules off the network in your javascipt, you can remove them from your html responses. however if you still have them there, there's really no harm since most browsers are pretty good about caching and reusing them. Ideally, the library will detect already loaded assets in the page but that would be too complicated so meh~
 
+## Sharing code with Node?
+If you are like me and you like to write code that is shared between Node and Browser for whatever reason, you can do so in the following way
+
+```javascipt
+if (typeof requireOnce == 'undefined') var requireOnce = require("require_once");
+
+requireOnce([
+    {browser: "/path/to/dependency1.js", server:"dependency"}
+    {browser: "/path/to/underscore.js", server:"underscore"}, 
+	"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+], function(dependency1, _, css){
+    dependency1.action(_.method());
+	
+	if (css){
+		console.log("I am in a browser")
+		// my logic
+	}
+}, function(jquery, uiCSS, jqueryUI, hammerjs){
+    // handle load error
+});
+```
+
+In the first line, we detect if require_once has been loaded and if not, require it. What happens is if you are in a browser environment requireOnce is probably already loaded via a <script> tag (or is inlined somewhere) and so you just use it but if you are in a node environment the library has not yet been loaded and as a result you load it in via require. 
+
+When requesting libraries, you can use the requireOnce and pass an array where each element is either a string for a URL or an object with a browser and server property. The browser property is of course the url to load the asset in the browser where as the server is the string to be passed into node's "require()" function.
+
+The library will take care of the rest with XMLHttpRequests while in the browser or via Require in node. if you do not pass a server property, or if you just use a string, the server wont bother trying to get the asset and will just return a false in that place. If this is the case you should have catches so when running your code on the server, you dont expect your asset to come in when a false is going to drop in it's place. 
+
 ## Licence?
 MIT = free for all yay?
