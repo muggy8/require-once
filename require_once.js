@@ -1,7 +1,7 @@
 (function(context){
     function saferEval(code){
         if (this != context){
-            return saferEval.apply(context, [code]);
+            return saferEval.call(context, code);
         }
 
         var module = {},
@@ -121,7 +121,7 @@
 						obtainedDependencies[index] = require(dependency);
 					}
 					else {
-						obtainedDependencies[index] = true;
+						obtainedDependencies[index] = false;
 					}
 					numberReturned++;
 					attemptCallback();

@@ -14,3 +14,15 @@ requireOnce([
 		console.log(bootstrapCss);
 	})
 })
+
+requireOnce([
+	{server: "do-async", browser: "https://unpkg.com/do-async@latest"}, 
+	{server: "method-overload", browser: "https://unpkg.com/method-overload@latest"}
+], function(doAsync, overload){
+	doAsync(function(){
+		var chain = this;
+		setTimeout(this.pass, 1000);
+	}).then(function(){
+		console.log(overload);
+	})
+})
