@@ -140,8 +140,6 @@ requireOnce([
 		console.log("I am in a browser")
 		// my logic
 	}
-}, function(jquery, uiCSS, jqueryUI, hammerjs){
-    // handle load error
 });
 ```
 
