@@ -89,39 +89,54 @@
 			failed = failed || function(){};
     		var obtainedDependencies = [],
                 numberReturned = 0;
+			
+			var attemptCallback = function(){
+				if (numberReturned == dependencies.length){ // all dependencies have returned
+					var callFail = false;
 
-			//for (var i = 0; i < dependencies.length; i++) {
-            dependencies.forEach(function(dependency, index){
+					obtainedDependencies.forEach(function(gotten){
+						if (!gotten && gotten === false){
+							callFail = true;
+						}
+					});
 
-                seekOrGet(dependency, function(statusCode, responce, contentType){
-
-                    numberReturned++;
-
-					if (responce){
-                        obtainedDependencies[index] = responce;
+					if (callFail){
+						failed.apply(context, obtainedDependencies);
 					}
 					else {
-						obtainedDependencies[index] = false;
+						callback.apply(context, obtainedDependencies);
 					}
+				}
+			}
 
-                    if (numberReturned == dependencies.length){ // all dependencies have returned
-                        var callFail = false;
+			//for (var i = 0; i < dependencies.length; i++) {
+            dependencies.forEach(function(mixedDependency, index){
+				
+				var dependency;
+				if (typeof require != 'undefined' && typeof XMLHttpRequest == 'undefined'){ // inside node
+					dependency = mixedDependency.server
+					obtainedDependencies[index] = require(dependency);
+					numberReturned++;
+					attemptCallback();
+				}
+				else if (XMLHttpRequest){ // inside browser
+					dependency = mixedDependency.browser || mixedDependency; // mixedDependency can be object or a URL string
+					seekOrGet(dependency, function(statusCode, responce, contentType){
 
-                        obtainedDependencies.forEach(function(gotten){
-                            if (!gotten && gotten === false){
-                                callFail = true;
-                            }
-                        });
+						numberReturned++;
 
-                        if (callFail){
-                            failed.apply(context, obtainedDependencies);
-                        }
-                        else {
-                            callback.apply(context, obtainedDependencies);
-                        }
-                    }
-				});
-
+						if (responce){
+							obtainedDependencies[index] = responce;
+						}
+						else {
+							obtainedDependencies[index] = false;
+						}
+						
+						attemptCallback();
+					});
+					
+				}
+				
             })
 
     	};

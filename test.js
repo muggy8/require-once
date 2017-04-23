@@ -1,3 +1,5 @@
-if (typeof requireOnce == 'undefined') var requireOnce = require("./require-once.min.js");
+if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js");
 
-console.log(requireOnce);
+requireOnce([
+	{server: "keygen", browser: "https://unpkg.com/keygen@latest"}
+])
