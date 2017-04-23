@@ -85,7 +85,9 @@
 		}
 
     	context.requireOnce = context.require_once = function(dependencies, callback, failed){
-
+			if (!callback){
+				throw "Success callback not defined";
+			}
 			failed = failed || function(){};
     		var obtainedDependencies = [],
                 numberReturned = 0;
