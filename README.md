@@ -8,7 +8,7 @@ Require Once is a client (browser) javascipt that is inspired by requirejs but l
 You can either in-line the file in your JS at the top or you can add `<script src="path/to/require_once.min.js"></script>` to your project somewhere before you start using it.
 
 ## usage
-the library creates a requireOnce and require_once (alius) function in your global scope and you can call them to require your libraries from URLs. Please be advised that the URLs should be absolute paths (aka starting with "http(s)" or "/"). All paths are relative to the HTML document that the app is ran and not the path of the file the includeOnce is called in. as a result, it's the best to just make paths absolute.
+the library creates a requireOnce and require_once (alias) function in your global scope and you can call them to require your libraries from URLs. Please be advised that the URLs should be absolute paths (aka starting with "http(s)" or "/"). All paths are relative to the HTML document that the app is ran and not the path of the file the includeOnce is called in. as a result, it's the best to just make paths absolute.
 
 ### requireOnce(array url, function callback[, function failedCallback])
 
@@ -94,7 +94,7 @@ In the above example. if we failed to load the required dependencies, we attempt
 
 Yes you can call requireOnce inside of files that got required by requireOnce and they would share the same cache. This way if you have a large number of nested dependencies that depends on other things, you can feel free to just have one init.js in your main html response which then loads in other modules on the fly.
 
-Immagine the file structure below for your app.
+Imagine the file structure below for your app.
 
 ```
 - index.html
@@ -118,7 +118,7 @@ Immagine the file structure below for your app.
 + css
 ...
 ```
-trying to maintain that as your project grows will become dificult as you forget that each tme you add a file, you'll need to add it to all the index pages and so on. but what if you just added a new dependency at the top of the file you're working on. for example you can have a rsa.js depend on genRSAKey.js and when you include rsa.js you automatically include the generator as well and when you init your app, your app will just get all the required stuff by itself.
+trying to maintain that as your project grows will become difficult as you forget that each time you add a file, you'll need to add it to all the index pages and so on. but what if you just added a new dependency at the top of the file you're working on. for example you can have a rsa.js depend on genRSAKey.js and when you include rsa.js you automatically include the generator as well and when you init your app, your app will just get all the required stuff by itself.
 
 ## <script> tags in the index?
 and now that you are loading your dependencies and modules off the network in your javascipt, you can remove them from your html responses. however if you still have them there, there's really no harm since most browsers are pretty good about caching and reusing them. Ideally, the library will detect already loaded assets in the page but that would be too complicated so meh~
