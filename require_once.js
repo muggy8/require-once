@@ -1,4 +1,4 @@
-(function(context){
+(function(context, safeEval){
     function saferEval(code){
         if (this != context){
             return saferEval.call(context, code);
@@ -27,12 +27,14 @@
 
 		var seekOrGet = function(url, callback){
 			var registryEntry = registry[url];
+
 			// already loaded and is in cache
-			if (registryEntry && registryEntry.result){
-				callback(registryEntry.ajax.status, registryEntry.exported, registryEntry.ajax.getResponseHeader("Content-Type"));
+			if (registryEntry && typeof registryEntry.result !== 'undefined'){
+				callback(registryEntry.ajax);
 			}
+
 			// is currently in the process of fetching
-			else if (registryEntry && !registryEntry.result){
+			else if (registryEntry && registryEntry.result === 'undefined'){
 				registryEntry.waiters.push(callback);
 			}
 
@@ -84,6 +86,23 @@
 			}
 		}
 
+        var waitingForDoc = []
+        document.addEventListener("readystatechange", function(){
+            if (document.readyState == "complete"){
+                for(var i = 0; i < waitingForDoc.length; i++){
+                    waitingForDoc[i]()
+                }
+            }
+        })
+        function waitForDocReady (callback) {
+            if (document.readyState == "complete"){
+                callback()
+            }
+            else {
+                waitingForDoc.push(callback)
+            }
+        }
+
     	context.requireOnce = context.require_once = function(dependencies, callback, failed){
 			if (!callback){
 				throw "Success callback not defined";
@@ -91,7 +110,7 @@
 			failed = failed || function(){};
     		var obtainedDependencies = [],
                 numberReturned = 0;
-			
+
 			var attemptCallback = function(){
 				if (numberReturned == dependencies.length){ // all dependencies have returned
 					var callFail = false;
@@ -113,7 +132,7 @@
 
 			//for (var i = 0; i < dependencies.length; i++) {
             dependencies.forEach(function(mixedDependency, index){
-				
+
 				var dependency;
 				if (typeof require != 'undefined' && typeof XMLHttpRequest == 'undefined'){ // inside node
 					dependency = mixedDependency.server
@@ -138,18 +157,32 @@
 						else {
 							obtainedDependencies[index] = false;
 						}
-						
+
 						attemptCallback();
 					});
-					
+
 				}
-				
+
             })
 
     	};
     })();
-	
+
 	if (typeof module != 'undefined'){
 		module.exports = context.requireOnce;
 	};
-})(this);
+})(
+    this,
+    function(code){
+        var module = {}
+        var exporter = module.exports = module.export = function(output){
+            module.exports = output
+        }
+        var results = eval(code)
+
+        return {
+            results: results,
+            module: module
+        }
+    }.bind(this)
+);

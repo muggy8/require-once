@@ -1,14 +1,14 @@
 <html>
 	<head>
 		<title>testing require-once.js</title>
+		<script>
+            /*document.addEventListener('readystatechange', function(ev){
+                console.log("ready state changed", document.readystate)
+            })*/
+		</script>
 	</head>
 	<body>
-		<script src="require_once.min.js"></script>
+		<script src="require_once.js"></script>
 		<script src="test.js"></script>
-		<script>
-			/*requireOnce(["https://unpkg.com/do-async@latest", "/extra-require.js"], function (doAsync){
-				console.log(doAsync);
-			})*/
-		</script>
 	</body>
 </html>
