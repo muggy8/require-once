@@ -174,12 +174,12 @@
 				}
 				else if (XMLHttpRequest){ // inside browser
 					dependency = mixedDependency.browser || mixedDependency; // mixedDependency can be object or a URL string
-					seekOrGet(dependency, function(statusCode, responce, contentType){
+					seekOrGet(dependency, function(xhrObject){
 
 						numberReturned++
 
-						if (responce){
-							obtainedDependencies[index] = responce
+						if (xhrObject.status >= 200 && xhrObject.status < 300){
+							obtainedDependencies[index] = xhrObject
 						}
 						else {
 							obtainedDependencies[index] = false
