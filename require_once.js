@@ -120,11 +120,9 @@
                 var xhr = this
                 var requestIndex = xhrs.push(xhr) - 1
                 xhr.addEventListener("loadend", function(){
-                    if (xhr.status >= 200 && xhr.status < 300){
-                        //console.log("request complete");
-                        if (xhrReadyCallbacks.length){ // if something is waiting for xhr requests to finish call the first thing so it can start it's resolution cycle
-                            xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
-                        }
+                    // if something is waiting for xhr requests to finish call the first thing so it can start it's resolution cycle
+                    if (xhrReadyCallbacks.length){
+                        xhrReadyCallbacks[xhrReadyCallbacks.length - 1](xhr)
                     }
                 })
                 xhr._send()
