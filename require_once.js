@@ -114,8 +114,10 @@
 		var obtainedDependencies = [],
             numberReturned = 0,
             afterEvaluatedXhrsAreDone = function(){
+                //remove the last item in callback (self)
                 xhrReadyCallbacks.splice(xhrReadyCallbacks.length - 1, 1)
 
+                // check to make sure everything's loaded include new script tags
                 var noXhrsLoading = xhrs.reduce(function(truthness, xhr){
                                        //xhr item is an XMLHttpRequest object  || xhr item is a script tag
                     return truthness && (xhr.readyState == XMLHttpRequest.DONE || xhr.readyState == "complete")
@@ -132,13 +134,28 @@
                     })
 
                     // call success or fail appropriately
+                    var successFlag = true;
                     var applyArray = obtainedDependencies.map(function(dependency){
-                        return dependency.returnVal
+                        if (!dependency){
+                            return successFlag = false
+                        }
+                        else {
+                            return dependency.returnVal
+                        }
                     })
 
+                    if (successFlag){
+                        callback.apply(context, applyArray)
+                    }
+                    else {
+                        failed.apply(context, applyArray)
+                    }
 
                     // call the next item in the chain
-                    console.warn(obtainedDependencies);
+                    if (xhrReadyCallbacks.length){
+                        xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
+                    }
+
                 }
                 else {
                     xhrReadyCallbacks.push(afterEvaluatedXhrsAreDone)
@@ -146,19 +163,11 @@
             },
             ifAllDependenciesLoaded = function(){
                 if (numberReturned == dependencies.length){ // all dependencies have returned
+
+                    // eval all javascripts
                     obtainedDependencies.forEach(function(wrapper){
                         if (wrapper && wrapper.xhr.getResponseHeader("Content-Type").match(/javascript/i)){
                             wrapper.evaluater = safeEval(wrapper.xhr.responseText)
-                            xhrReadyCallbacks.push(afterEvaluatedXhrsAreDone)
-
-                            var noXhrsLoading = xhrs.reduce(function(truthness, xhr){
-                                return truthness && (xhr.readyState == XMLHttpRequest.DONE || xhr.readyState == "complete")
-                                                   //xhr item is an XMLHttpRequest object  || xhr item is a script tag
-                            }, true)
-
-                            if (noXhrsLoading){
-                               xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
-                            }
                         }
                         else {
                             if (wrapper.xhr){
@@ -166,6 +175,18 @@
                             }
                         }
                     })
+
+                    // add a callback to wait on any xhr requests that resulted from all the evals
+                    xhrReadyCallbacks.push(afterEvaluatedXhrsAreDone)
+
+                    var noXhrsLoading = xhrs.reduce(function(truthness, xhr){
+                        return truthness && (xhr.readyState == XMLHttpRequest.DONE || xhr.readyState == "complete")
+                                           //xhr item is an XMLHttpRequest object  || xhr item is a script tag
+                    }, true)
+
+                    if (noXhrsLoading){
+                       xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
+                    }
                 }
             }
 
