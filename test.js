@@ -3,7 +3,7 @@ if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once
 requireOnce([
 	{server: "do-async", browser: "https://unpkg.com/do-async@latest"},
 	{server: "method-overload", browser: "https://unpkg.com/method-overload@latest"},
-	"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css",
+	"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min",
 
 ], function(doAsync, overload, bootstrapCss){
 	doAsync(function(){

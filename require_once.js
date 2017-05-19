@@ -110,6 +110,7 @@
 			throw "Success callback not defined"
 		}
 		failed = failed || function(){}
+
 		var obtainedDependencies = [],
             numberReturned = 0,
             afterEvaluatedXhrsAreDone = function(){
@@ -121,9 +122,23 @@
                 }, true)
 
                 if (noXhrsLoading){
-                    // resolve the the call
+                    // resolve "returnVal" for all dependencies
+                    obtainedDependencies.forEach(function(wrapper){
+                        if (wrapper && wrapper.evaluater){
+                            wrapper.returnVal = (wrapper.evaluater.module.export != wrapper.evaluater.module.exports)
+                                ? wrapper.evaluater.module.exports
+                                : wrapper.evaluater.output
+                        }
+                    })
+
+                    // call success or fail appropriately
+                    var applyArray = obtainedDependencies.map(function(dependency){
+                        return dependency.returnVal
+                    })
+
+
                     // call the next item in the chain
-                    console.log("execution got here so that's good", obtainedDependencies);
+                    console.warn(obtainedDependencies);
                 }
                 else {
                     xhrReadyCallbacks.push(afterEvaluatedXhrsAreDone)
@@ -143,6 +158,11 @@
 
                             if (noXhrsLoading){
                                xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
+                            }
+                        }
+                        else {
+                            if (wrapper.xhr){
+                                wrapper.returnVal = wrapper.xhr.responseText
                             }
                         }
                     })
