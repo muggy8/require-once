@@ -106,7 +106,6 @@
     }
 
 	context.requireOnce = context.require_once = function(dependencies, callback, failed){
-		console.warn (registry)
 		if (!callback){
 			throw "Success callback not defined"
 		}
