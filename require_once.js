@@ -114,6 +114,9 @@
 		var obtainedDependencies = [],
             numberReturned = 0,
             afterEvaluatedXhrsAreDone = function(){
+				waitForDocReady(domAlsoReady)
+			},
+			domAlsoReady = function(){
                 //remove the last item in callback (self)
                 xhrReadyCallbacks.splice(xhrReadyCallbacks.length - 1, 1)
 
@@ -216,7 +219,6 @@
     			}
 			}
 			else if (XMLHttpRequest){ // inside browser
-				waitForDocReady(function(){
 					dependency = mixedDependency.browser || mixedDependency; // mixedDependency can be object or a URL string
 
 	                seekOrGet(dependency, function(xhrObject, cachedReturnVal){
@@ -229,7 +231,6 @@
 						numberReturned++
 	                    ifAllDependenciesLoaded()
 					})
-				})
 			}
         })
 	}
