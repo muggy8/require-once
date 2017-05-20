@@ -127,7 +127,6 @@
                     // resolve "returnVal" for all dependencies
                     obtainedDependencies.forEach(function(wrapper, index){
                         var dependencyName = dependencies[index].browser || dependencies[index];
-                        console.log(registry[dependencyName])
 
                         registry[dependencyName].returnVal = wrapper.returnVal
                         if (wrapper && wrapper.evaluater){
@@ -136,7 +135,6 @@
                                 : wrapper.evaluater.output
                         }
                     })
-                    console.warn(registry)
 
                     // call success or fail appropriately
                     var successFlag = true;
@@ -169,15 +167,21 @@
             ifAllDependenciesLoaded = function(){
                 if (numberReturned == dependencies.length){ // all dependencies have returned
 
-                    // eval all javascripts
+                    // eval all unevaluated javascripts
                     obtainedDependencies.forEach(function(wrapper){
-                        if (wrapper && wrapper.xhr.getResponseHeader("Content-Type").match(/javascript/i)){
+                        if (
+                            wrapper && // xhr did not fail
+                            typeof wrapper.returnVal == "undefined" && // has not been evaluated already
+                            wrapper.xhr.getResponseHeader("Content-Type").match(/javascript/i) // is a javascript file
+                        ){
                             wrapper.evaluater = safeEval(wrapper.xhr.responseText)
                         }
-                        else {
-                            if (wrapper.xhr){
-                                wrapper.returnVal = wrapper.xhr.responseText
-                            }
+                        else if (
+                            wrapper && // xhr did not fail
+                            typeof wrapper.returnVal == "undefined" && // has not been evaluated already
+                            wrapper.xhr // file is not javascript
+                        ){
+                            wrapper.returnVal = wrapper.xhr.responseText
                         }
                     })
 
@@ -216,7 +220,7 @@
 
                 seekOrGet(dependency, function(xhrObject, cachedReturnVal){
 					if (xhrObject.status >= 200 && xhrObject.status < 300){
-						obtainedDependencies[index] = {xhr: xhrObject}
+						obtainedDependencies[index] = {xhr: xhrObject, returnVal: cachedReturnVal}
 					}
 					else {
 						obtainedDependencies[index] = false

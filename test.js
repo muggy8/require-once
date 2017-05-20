@@ -14,7 +14,7 @@ requireOnce([
 		setTimeout(this.pass, 1000);
 	}).then(function(){
 		console.log(overload);
-		console.log(bootstrapCss);
+		//console.log(bootstrapCss);
 	})
 
     "undefined"!=typeof module&&module.exports&&(module.exports=myTestFn)
