@@ -71,7 +71,7 @@
 		}
 	}
 
-    if (document && XMLHttpRequest){ // dont do this if in node
+    if (typeof document!= "undefined" && typeof XMLHttpRequest != "undefined"){ // dont do this if in node
         var waitingForDoc = []
         document.addEventListener("readystatechange", function(){
             if (document.readyState == "complete"){

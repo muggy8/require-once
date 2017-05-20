@@ -1,5 +1,4 @@
-if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js");
-
+if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js");if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js");
 
 requireOnce([
 	{server: "do-async", browser: "https://unpkg.com/do-async@latest"},
