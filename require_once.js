@@ -7,7 +7,7 @@
 
 		// already loaded and is in cache
 		if (registryEntry && typeof registryEntry.result !== 'undefined'){
-			callback(registryEntry.request)
+            callback(registryEntry.request, registryEntry.returnVal)
 		}
 
 		// is currently in the process of fetching
@@ -125,13 +125,18 @@
 
                 if (noXhrsLoading){
                     // resolve "returnVal" for all dependencies
-                    obtainedDependencies.forEach(function(wrapper){
+                    obtainedDependencies.forEach(function(wrapper, index){
+                        var dependencyName = dependencies[index].browser || dependencies[index];
+                        console.log(registry[dependencyName])
+
+                        registry[dependencyName].returnVal = wrapper.returnVal
                         if (wrapper && wrapper.evaluater){
-                            wrapper.returnVal = (wrapper.evaluater.module.export != wrapper.evaluater.module.exports)
+                            registry[dependencyName].returnVal = wrapper.returnVal = (wrapper.evaluater.module.export != wrapper.evaluater.module.exports)
                                 ? wrapper.evaluater.module.exports
                                 : wrapper.evaluater.output
                         }
                     })
+                    console.warn(registry)
 
                     // call success or fail appropriately
                     var successFlag = true;
@@ -209,7 +214,7 @@
 			else if (XMLHttpRequest){ // inside browser
 				dependency = mixedDependency.browser || mixedDependency; // mixedDependency can be object or a URL string
 
-                seekOrGet(dependency, function(xhrObject){
+                seekOrGet(dependency, function(xhrObject, cachedReturnVal){
 					if (xhrObject.status >= 200 && xhrObject.status < 300){
 						obtainedDependencies[index] = {xhr: xhrObject}
 					}
@@ -229,15 +234,17 @@
 })(
     this,
     function(code){
-        var module = {}
-        var exporter = module.exports = module.export = function(output){
-            module.exports = output
-        }
-        var results = eval(code)
+        var module = {},
+            requireOnce = this.requireOnce,
+            require_once = this.require_once,
+            exporter = module.exports = module.export = function(output){
+                module.exports = output
+            },
+            results = eval(code)
 
         return {
             output: results,
             module: module
         }
-    }.bind(this)
+    }
 )

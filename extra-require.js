@@ -3,8 +3,8 @@ requireOnce([
     'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css',
     'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
     'https://ajax.googleapis.com/ajax/libs/hammerjs/2.0.8/hammer.min.js',
-
-], function(jquery, uiCSS, jqueryUI, hammerjs){
+    'test.js'
+], function(jquery, uiCSS, jqueryUI, hammerjs, myTest){
     $("head")
         .append(
             $("<style></style>").text(uiCSS)
@@ -14,4 +14,8 @@ requireOnce([
         .on("tap", function(ev){
             console.log("Eeeww I've been touched");
         });
+
+    myTest(123)
+
+    console.log(doAsync)
 });
