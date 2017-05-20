@@ -106,6 +106,7 @@
     }
 
 	context.requireOnce = context.require_once = function(dependencies, callback, failed){
+		console.warn (registry)
 		if (!callback){
 			throw "Success callback not defined"
 		}
@@ -216,17 +217,19 @@
     			}
 			}
 			else if (XMLHttpRequest){ // inside browser
-				dependency = mixedDependency.browser || mixedDependency; // mixedDependency can be object or a URL string
+				waitForDocReady(function(){
+					dependency = mixedDependency.browser || mixedDependency; // mixedDependency can be object or a URL string
 
-                seekOrGet(dependency, function(xhrObject, cachedReturnVal){
-					if (xhrObject.status >= 200 && xhrObject.status < 300){
-						obtainedDependencies[index] = {xhr: xhrObject, returnVal: cachedReturnVal}
-					}
-					else {
-						obtainedDependencies[index] = false
-					}
-					numberReturned++
-                    ifAllDependenciesLoaded()
+	                seekOrGet(dependency, function(xhrObject, cachedReturnVal){
+						if (xhrObject.status >= 200 && xhrObject.status < 300){
+							obtainedDependencies[index] = {xhr: xhrObject, returnVal: cachedReturnVal}
+						}
+						else {
+							obtainedDependencies[index] = false
+						}
+						numberReturned++
+	                    ifAllDependenciesLoaded()
+					})
 				})
 			}
         })
