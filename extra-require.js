@@ -10,7 +10,7 @@ requireOnce([
 ], function(jquery, uiCSS, jqueryUI, hammerjs, myTest){
 
     myTest(123)
-/*
+
 	$("head")
         .append(
             $("<style></style>").text(uiCSS)
@@ -20,7 +20,6 @@ requireOnce([
         .on("tap", function(ev){
             console.log("Eeeww I've been touched");
         });
-*/
 
     //console.log(doAsync)
 });
