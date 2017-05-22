@@ -2,8 +2,53 @@
     var registry = {}
 
 	var seekOrGet = function(url, callback){
-        var requestUrl = url
-		var registryEntry = registry[url]
+        var requestUrl = url,
+			registryEntry = registry[url],
+			attemptConnection = function(queue){
+				var connection = queue.request = new XMLHttpRequest(),
+					recur = function(){
+						attemptConnection(queue)
+					}
+
+				connection.onreadystatechange = function(){
+					if (connection.readyState == XMLHttpRequest.DONE){
+						if ((connection.status >= 200 && connection.status < 300) || connection.status == 304) {
+							// success
+							queue.result = 'success'
+							for (var i = 0; i < queue.waiters.length; i++){
+								queue.waiters[i](connection)
+							}
+						}
+
+						else if (connection.status >= 300 && connection.status < 400) {
+							requestUrl = connection.getResponseHeader("Location") || url
+							if (requestUrl != url){
+								recur()
+							}
+							else {
+								queue.attempts++
+								setTimeout(recur, queue.attempts*100)
+							}
+						}
+
+						else if (queue.attempts < 5){
+							// retry this process with timeout
+							queue.attempts++
+							setTimeout(recur, queue.attempts*100)
+						}
+
+						else {
+							// asset failed to load.
+							for (var i = 0; i < queue.waiters.length; i++){
+								queue.waiters[i](connection)
+							}
+							queue.result = 'failed'
+						}
+					}
+				}
+				connection.open("GET", requestUrl, true)
+				connection.send()
+			}
 
 		// already loaded and is in cache
 		if (registryEntry && typeof registryEntry.result !== 'undefined'){
@@ -17,57 +62,12 @@
 
 		// is a completely new URL not known yet
 		else {
-			var queue = registry[url] = {
-				waiters: [callback],
-				attempts: 1
-			}
-
-			function attemptConnection (){
-				var connection = queue.request = new XMLHttpRequest()
-
-				connection.onreadystatechange = function(){
-
-					if (connection.readyState == XMLHttpRequest.DONE){
-
-						if (connection.status >= 200 && connection.status < 300) {
-							// success
-							queue.result = 'success'
-							for (var i = 0; i < queue.waiters.length; i++){
-								queue.waiters[i](connection)
-							}
-						}
-
-                        else if (connection.status >= 300 && connection.status < 400) {
-
-                            requestUrl = connection.getResponseHeader("Location") || url
-                            if (requestUrl != url){
-                                attemptConnection()
-                            }
-                            else {
-                                queue.attempts++
-								setTimeout(attemptConnection, queue.attempts*100)
-                            }
-                        }
-
-						else if (queue.attempts < 5){
-							// retry this process with timeout
-							queue.attempts++
-							setTimeout(attemptConnection, queue.attempts*100)
-						}
-
-						else {
-							// asset failed to load.
-							for (var i = 0; i < queue.waiters.length; i++){
-								queue.waiters[i](connection)
-							}
-                            queue.result = 'failed'
-						}
-					}
+			attemptConnection(
+				registry[url] = {
+					waiters: [callback],
+					attempts: 1
 				}
-				connection.open("GET", requestUrl, true)
-				connection.send()
-			}
-			attemptConnection()
+			)
 		}
 	}
 
@@ -113,9 +113,6 @@
 
 		var obtainedDependencies = [],
             numberReturned = 0,
-            afterEvaluatedXhrsAreDone = function(){
-				waitForDocReady(domAlsoReady)
-			},
 			domAlsoReady = function(){
                 //remove the last item in callback (self)
                 xhrReadyCallbacks.splice(xhrReadyCallbacks.length - 1, 1)
@@ -167,6 +164,9 @@
                     xhrReadyCallbacks.push(afterEvaluatedXhrsAreDone)
                 }
             },
+            afterEvaluatedXhrsAreDone = function(){
+				waitForDocReady(domAlsoReady)
+			},
             ifAllDependenciesLoaded = function(){
                 if (numberReturned == dependencies.length){ // all dependencies have returned
 
@@ -219,18 +219,18 @@
     			}
 			}
 			else if (XMLHttpRequest){ // inside browser
-					dependency = mixedDependency.browser || mixedDependency; // mixedDependency can be object or a URL string
+				dependency = mixedDependency.browser || mixedDependency; // mixedDependency can be object or a URL string
 
-	                seekOrGet(dependency, function(xhrObject, cachedReturnVal){
-						if (xhrObject.status >= 200 && xhrObject.status < 300){
-							obtainedDependencies[index] = {xhr: xhrObject, returnVal: cachedReturnVal}
-						}
-						else {
-							obtainedDependencies[index] = false
-						}
-						numberReturned++
-	                    ifAllDependenciesLoaded()
-					})
+                seekOrGet(dependency, function(xhrObject, cachedReturnVal){
+					if ((xhrObject.status >= 200 && xhrObject.status < 300) || xhrObject.status == 304){
+						obtainedDependencies[index] = {xhr: xhrObject, returnVal: cachedReturnVal}
+					}
+					else {
+						obtainedDependencies[index] = false
+					}
+					numberReturned++
+                    ifAllDependenciesLoaded()
+				})
 			}
         })
 	}
