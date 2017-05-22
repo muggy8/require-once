@@ -157,6 +157,8 @@ MIT = free for all yay?
 
 ## Changelog:
 
+#### 0.2.1
+
 #### 0.2.0
 Made require_once a recursive resolution rather than having it be a linlar resolution. If files required with require_once also make XMLHttpRequests (like calling requireOnce) then parent callbacks wont fire till all subiquent requests are complete and allowing for better support for loading nested dependencies.
 
