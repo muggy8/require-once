@@ -1,5 +1,3 @@
-//console.log("executing recursive includes", requireOnce, require_once)
-
 if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js");if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js");
 
 requireOnce([
@@ -7,7 +5,7 @@ requireOnce([
 	{server: "method-overload", browser: "https://unpkg.com/method-overload@latest"},
 	"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
 ], function(doAsync, overload, bootstrapCss){
-    console.log(doAsync, overload);
+    console.log("doAsync", "overload", "loaded");
 	var myTestFn = doAsync(function(something){
         console.log(something);
 		var chain = this;
