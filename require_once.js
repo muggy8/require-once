@@ -97,7 +97,7 @@
 		var xhrs = []
 		var xhrReadyCallbacks = []
 		XMLHttpRequest.prototype._send = XMLHttpRequest.prototype.send
-		XMLHttpRequest.prototype.send = function(){
+		XMLHttpRequest.prototype.send = function(potentialData){
 			var xhr = this
 			var requestIndex = xhrs.push(xhr) - 1
 			xhr.addEventListener("loadend", function(){
@@ -106,7 +106,12 @@
 					xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
 				}
 			})
-			xhr._send()
+			if (typeof potentialData != "undefined"){
+				xhr._send(potentialData)
+			}
+			else {
+				xhr._send()
+			}
 		}
 	}
 
