@@ -156,6 +156,9 @@ MIT = free for all yay?
 
 ## Changelog:
 
+#### 0.2.3
+require_once needed to hijack the XMLHttpRequest's send() method to do some fancy footwork to keep track of when to fire callbacks and what not. Due to an oversight, this meant that the XMLHttpRequest's normal send function doesn't actually work the way it is supposed to (though you can use the newly added _send() function instead) but that wasn't supposed to be the case. This fixed the bug and although the hijacking of the send() function is still present, the XMLHttpRequest.send function will work as intended.
+
 #### 0.2.2
 Fixed a bug that caused loaded scripts to be evaluated multiple times when the same script is required by multiple sources.
 
