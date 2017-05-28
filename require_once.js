@@ -57,16 +57,19 @@
 
 		// already loaded and is in cache
 		if (registryEntry && typeof registryEntry.result !== 'undefined'){
+			//console.log("insta callback", url)
 			callback(registryEntry)
 		}
 
 		// is currently in the process of fetching
 		else if (registryEntry && registryEntry.result === 'undefined'){
+			//console.log("added to waiters", url)
 			registryEntry.waiters.push(callback)
 		}
 
 		// is a completely new URL not known yet
 		else {
+			//console.log("new request", url)
 			attemptConnection(
 				registry[url] = {
 					waiters: [callback],
@@ -173,6 +176,9 @@
 			},
 			ifAllDependenciesLoaded = function(){
 				if (numberReturned == dependencies.length){ // all dependencies have returned
+					// add a callback to wait on any xhr requests that resulted from all the evals
+					xhrReadyCallbacks.push(afterEvaluatedXhrsAreDone)
+
 					// eval all unevaluated javascripts
 					obtainedDependencies.forEach(function(opperator){
 						if (
@@ -191,9 +197,6 @@
 							opperator.returnVal = opperator.request.responseText
 						}
 					})
-
-					// add a callback to wait on any xhr requests that resulted from all the evals
-					xhrReadyCallbacks.push(afterEvaluatedXhrsAreDone)
 
 					// call the chain it's gonna check for additional XHRs and dom readiness anyways
 					xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
