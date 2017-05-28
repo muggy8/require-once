@@ -2,14 +2,15 @@
 RequireOnce is mostly a browser library that is inspired by requirejs and adds additional code from other sources to the current app context.
 
 ## What is it?
-Require Once is a first and foremost a client (browser) javascipt that is inspired by requirejs but loads modules off the network automatically and so your index page is not filled with `<script src="path/to/dependency"></script>`. As the name implies, it will require whatever your dependency once and if you require it again, it will just use whatever it got the first time around. This means that you can require your own dependencies from within the JS files that need them rather than from elsewhere. You can also use it in node so your browser and server can share some of the same code base if you so desire.
+Require Once is a first and foremost a client (browser) javascipt library that is inspired by requirejs but loads modules off the network automatically and so your index page is not filled with `<script src="path/to/dependency"></script>`. As the name implies, it will require whatever your dependency once and if you require it again, it will just use whatever it got the first time around. This means that you can require your own dependencies from within the JS files that need them rather than from elsewhere. You can also use it in node so your browser and server can share some of the same code base if you so desire.
 
 ## Install
 Browser: `<script src="path/to/require_once.min.js"></script>`
+
 node: `npm install require_once --save`
 
 ## usage
-the library creates a requireOnce and require_once (alias) function in your global scope and you can call them to require your libraries from URLs. Please be advised that the URLs should be absolute paths (aka starting with "http(s)://" or "/"). All paths are relative to the HTML document that the app is ran and not the path of the file the includeOnce is called in. as a result, it's the best to just use absolute paths .
+the library creates a requireOnce and require_once (alias) function in your global scope and you can call them to require your libraries from URLs. Please be advised that the URLs should be absolute paths (aka starting with "http(s)://", "//", or "/"). All paths are relative to the HTML document that the app is ran and not the path of the file the includeOnce is called in. as a result, it's the best to just use absolute paths .
 
 ### requireOnce(array url, function callback[, function failedCallback])
 
@@ -19,8 +20,7 @@ requireOnce([
     'https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js',
     'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css',
     'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
-    'https://ajax.googleapis.com/ajax/libs/hammerjs/2.0.8/hammer.min.js',
-
+    'https://ajax.googleapis.com/ajax/libs/hammerjs/2.0.8/hammer.min.js'
 ], function(jquery, uiCSS, jqueryUI, hammerjs){
     $("head")
         .append(
@@ -42,15 +42,14 @@ If all the dependencies are loaded successfully, the success callback is called,
 If however the file loaded is not a javascript file. the file's contents is passed directly in it's place. This way you can request any file (CSS, JSON, etc) and do with it what you want.
 
 ### failedCallback
-Because it loads stuff off a network, the calls might fail so you might want to prepare for situations for when the network fails your app. The library has an automatic timeout system so if the file failes to fetch, it will wait a bit for another try and then again up to 5 times before declaring the operation a failure. If a failure to load is detected, the 3rd callback is used to keep track of this and act as kind of a fallback. The arguments are again passed to the function in listed order except dependencies that failed to load will have the value of false. With our example above, we can complete it like this:
+Because it loads stuff off a network, the calls might fail so you might want to prepare for situations for when the network fails your app. The library has an automatic fail retry system so if the file failes to fetch, it will wait a bit for another try and then again up to 5 times before declaring the operation a failure. If a failure to load is detected, the 3rd callback is used to keep track of this and act as kind of a fallback. The arguments are again passed to the function in listed order except dependencies that failed to load will have the value of false. With our example above, we can complete it like this:
 
 ```javascipt
 requireOnce([
     'https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js',
     'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css',
     'https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js',
-    'https://ajax.googleapis.com/ajax/libs/hammerjs/2.0.8/hammer.min.js',
-
+    'https://ajax.googleapis.com/ajax/libs/hammerjs/2.0.8/hammer.min.js'
 ], function(jquery, uiCSS, jqueryUI, hammerjs){
     $("head")
         .append(
@@ -156,6 +155,9 @@ The library will take care of the rest with XMLHttpRequests while in the browser
 MIT = free for all yay?
 
 ## Changelog:
+
+#### 0.2.2
+Fixed a bug that caused loaded scripts to be evaluated multiple times when the same script is required by multiple sources.
 
 #### 0.2.1
 recursive asset load beings when the code is called and recursive resolution begins when doc loaded or asset loaded which ever happens first
