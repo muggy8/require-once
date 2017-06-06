@@ -9,6 +9,6 @@ requireOnce(
         "/order/5.js"
     ],
     function(){
-        console.log("1.js has fired and resolved")
+        console.warn("1.js has fired and resolved")
     }
 )

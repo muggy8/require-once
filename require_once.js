@@ -160,6 +160,7 @@
 				xhrReadyCallbacks.splice(xhrReadyCallbacks.length - 1, 1)
 
 				// call the next item in the chain
+                console.log(xhrReadyCallbacks.length, xhrReadyCallbacks.length? true : false)
 				if (xhrReadyCallbacks.length){
 					xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
 				}
@@ -205,7 +206,7 @@
                 dependencyLoadStateCheck()
             }
 
-		// actual logig for getting the dependencies and calling them
+		// actual loging for getting the dependencies and calling them
 		dependencies.forEach(function(mixedDependency, index){
 			var dependency
 			if (typeof require != 'undefined' && typeof XMLHttpRequest == 'undefined'){ // inside node
