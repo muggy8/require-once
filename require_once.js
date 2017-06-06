@@ -2,6 +2,7 @@
 	var registry = {}
 
 	var seekOrGet = function(url, callback){
+        //console.log(registry, url)
 		var requestUrl = url,
 			registryEntry = registry[url],
 			attemptConnection = function(queue){
@@ -62,7 +63,7 @@
 		}
 
 		// is currently in the process of fetching
-		else if (registryEntry && registryEntry.result === 'undefined'){
+		else if (registryEntry && typeof registryEntry.result === 'undefined'){
 			//console.log("added to waiters", url)
 			registryEntry.waiters.push(callback)
 		}
@@ -163,45 +164,46 @@
 					xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
 				}
 			},
-			afterEvaluatedXhrsAreDone = function(){
-				var noXhrsLoading = xhrs.reduce(function(truthness, xhr){
-									   //xhr item is an XMLHttpRequest object  || xhr item is a script tag
-					return truthness && (xhr.readyState == XMLHttpRequest.DONE || xhr.readyState == "complete")
-				}, true)
+			dependencyLoadStateCheck = function(){
+				if (numberReturned == dependencies.length){ // all dependencies have returned
+					//afterEvaluatedXhrsAreDone()
+                    var noXhrsLoading = xhrs.reduce(function(truthness, xhr){
+    									   //xhr item is an XMLHttpRequest object  || xhr item is a script tag
+    					return truthness && (xhr.readyState == XMLHttpRequest.DONE || xhr.readyState == "complete")
+    				}, true)
 
-				if (noXhrsLoading && !domWaiterSet){
-					domWaiterSet = true
-					waitForDocReady(domAlsoReady)
+    				if (noXhrsLoading && !domWaiterSet){
+    					domWaiterSet = true
+    					waitForDocReady(domAlsoReady)
+    				}
 				}
 			},
-			ifAllDependenciesLoaded = function(){
-				if (numberReturned == dependencies.length){ // all dependencies have returned
-					// add a callback to wait on any xhr requests that resulted from all the evals
-					xhrReadyCallbacks.push(afterEvaluatedXhrsAreDone)
+            potentialScriptEvaluation = function(opperator){
+                // push the current execution callback to the stack once first
+                if (xhrReadyCallbacks[xhrReadyCallbacks.length - 1] !== dependencyLoadStateCheck){
+                    xhrReadyCallbacks.push(dependencyLoadStateCheck)
+                }
 
-					// eval all unevaluated javascripts
-					obtainedDependencies.forEach(function(opperator){
-						if (
-							opperator && // xhr did not fail
-							opperator.request.getResponseHeader("Content-Type").match(/javascript/i) && // is a javascript file
-							typeof opperator.evaluater == "undefined" // has not been evaluated already
+                // evaluate the script maybe
+                if (
+                    opperator && // xhr did not fail
+                    opperator.request.getResponseHeader("Content-Type").match(/javascript/i) && // is a javascript file
+                    typeof opperator.evaluater == "undefined" // has not been evaluated already
 
-						){
-							opperator.evaluater = safeEval(opperator.request.responseText)
-						}
-						else if (
-							opperator && // xhr did not fail
-							typeof opperator.returnVal != "undefined" && // has not been evaluated already
-							!opperator.request.getResponseHeader("Content-Type").match(/javascript/i)  // file is not javascript
-						){
-							opperator.returnVal = opperator.request.responseText
-						}
-					})
+                ){
+                    opperator.evaluater = safeEval(opperator.request.responseText)
+                }
+                else if (
+                    opperator && // xhr did not fail
+                    typeof opperator.returnVal != "undefined" && // has not been evaluated already
+                    !opperator.request.getResponseHeader("Content-Type").match(/javascript/i)  // file is not javascript
+                ){
+                    opperator.returnVal = opperator.request.responseText
+                }
 
-					// call the chain it's gonna check for additional XHRs and dom readiness anyways
-					xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
-				}
-			}
+                // call the next step in the chain to make sure things are working
+                dependencyLoadStateCheck()
+            }
 
 		// actual logig for getting the dependencies and calling them
 		dependencies.forEach(function(mixedDependency, index){
@@ -231,7 +233,8 @@
 						obtainedDependencies[index] = false
 					}
 					numberReturned++
-					ifAllDependenciesLoaded()
+					//ifAllDependenciesLoaded()
+                    potentialScriptEvaluation(opperator)
 				})
 			}
 		})
