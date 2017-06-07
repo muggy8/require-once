@@ -2,7 +2,6 @@
 	var registry = {}
 
 	var seekOrGet = function(url, callback){
-        //console.log(registry, url)
 		var requestUrl = url,
 			registryEntry = registry[url],
 			attemptConnection = function(queue){
@@ -70,7 +69,7 @@
 
 		// is a completely new URL not known yet
 		else {
-			//console.log("new request", url)
+		//	console.log("new request", url)
 			attemptConnection(
 				registry[url] = {
 					waiters: [callback],
@@ -84,6 +83,7 @@
 		var waitingForDoc = []
 		document.addEventListener("readystatechange", function(){
 			if (document.readyState == "complete"){
+                console.warn("dom loaded")
 				for(var i = 0; i < waitingForDoc.length; i++){
 					waitingForDoc[i]()
 				}
@@ -105,10 +105,12 @@
 			var xhr = this
 			var requestIndex = xhrs.push(xhr) - 1
 			xhr.addEventListener("loadend", function(){
-				// if something is waiting for xhr requests to finish call the first thing so it can start it's resolution cycle
-				if (xhrReadyCallbacks.length){
-					xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
-				}
+				// if something is waiting for xhr requests to finish call the first thing so it can start it's resolution cycle but only when the document is ready
+                waitForDocReady(function(){
+                    if (xhrReadyCallbacks.length){
+                        xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
+                    }
+                })
 			})
 			if (typeof potentialData != "undefined"){
 				xhr._send(potentialData)
@@ -127,8 +129,7 @@
 
 		var obtainedDependencies = [],
 			numberReturned = 0,
-			domWaiterSet = false,
-			domAlsoReady = function(){
+			finalResolution = function(){
 				// resolve "returnVal" for all dependencies
 				obtainedDependencies.forEach(function(opperator, index){
 					if (opperator && opperator.evaluater){
@@ -160,28 +161,26 @@
 				xhrReadyCallbacks.splice(xhrReadyCallbacks.length - 1, 1)
 
 				// call the next item in the chain
-                console.log(xhrReadyCallbacks.length, xhrReadyCallbacks.length? true : false)
 				if (xhrReadyCallbacks.length){
 					xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
 				}
 			},
 			dependencyLoadStateCheck = function(){
+                // this function will only be called when the doc is ready.
 				if (numberReturned == dependencies.length){ // all dependencies have returned
-					//afterEvaluatedXhrsAreDone()
                     var noXhrsLoading = xhrs.reduce(function(truthness, xhr){
-    									   //xhr item is an XMLHttpRequest object  || xhr item is a script tag
-    					return truthness && (xhr.readyState == XMLHttpRequest.DONE || xhr.readyState == "complete")
-    				}, true)
+                                           //xhr item is an XMLHttpRequest object  || xhr item is a script tag
+                        return truthness && (xhr.readyState == XMLHttpRequest.DONE || xhr.readyState == "complete")
+                    }, true)
 
-    				if (noXhrsLoading && !domWaiterSet){
-    					domWaiterSet = true
-    					waitForDocReady(domAlsoReady)
-    				}
+    				noXhrsLoading && finalResolution()
 				}
 			},
+            resolutionOrderSet = false,
             potentialScriptEvaluation = function(opperator){
                 // push the current execution callback to the stack once first
-                if (xhrReadyCallbacks[xhrReadyCallbacks.length - 1] !== dependencyLoadStateCheck){
+                if (!resolutionOrderSet){
+                    resolutionOrderSet = true
                     xhrReadyCallbacks.push(dependencyLoadStateCheck)
                 }
 
@@ -190,8 +189,8 @@
                     opperator && // xhr did not fail
                     opperator.request.getResponseHeader("Content-Type").match(/javascript/i) && // is a javascript file
                     typeof opperator.evaluater == "undefined" // has not been evaluated already
-
                 ){
+                    //console.log("evaluating", opperator.request.responseURL)
                     opperator.evaluater = safeEval(opperator.request.responseText)
                 }
                 else if (
@@ -202,8 +201,12 @@
                     opperator.returnVal = opperator.request.responseText
                 }
 
-                // call the next step in the chain to make sure things are working
-                dependencyLoadStateCheck()
+                // call the next step in the chain if no doc is ready
+                // in the case that the doc isn't ready, the xhr onload callback will call it instead (above)
+                if (document.readyState == "complete"){
+                    dependencyLoadStateCheck()
+                }
+
             }
 
 		// actual loging for getting the dependencies and calling them
