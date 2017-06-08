@@ -156,8 +156,13 @@ MIT = free for all yay?
 
 ## Changelog:
 
+#### 0.3.0
+This update optimizes the loading process and by execute all dependencies as soon as they load rather than waiting for all dependencies on a certain level to load first before executing on that level of dependencies. There is a sizeable amount of change to the underlying execution logic of the library and as a result you may want to stay on the previous release. see the graph below for tldr;
+
+[comming soon]
+
 #### 0.2.4
-Fixed an error that might break resolution order when all assets that are required are already cached. 
+Fixed an error that might break resolution order when all assets that are required are already cached.
 
 #### 0.2.3
 require_once needed to hijack the XMLHttpRequest's send() method to do some fancy footwork to keep track of when to fire callbacks and what not. Due to an oversight, this meant that the XMLHttpRequest's normal send function doesn't actually work the way it is supposed to (though you can use the newly added _send() function instead) but that wasn't supposed to be the case. This fixed the bug and although the hijacking of the send() function is still present, the XMLHttpRequest.send function will work as intended.
