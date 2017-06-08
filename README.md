@@ -161,7 +161,7 @@ This update optimizes the loading process and by execute all dependencies as soo
 
 Before | After
 ------ | -------
-![Before](http://i68.tinypic.com/14cgzdy.jpg)) | ![Before](http://i68.tinypic.com/14cgzdy.jpg))
+![Before](http://i68.tinypic.com/14cgzdy.jpg)) | ![After](http://i68.tinypic.com/1esb3a.jpg)
 
 #### 0.2.4
 Fixed an error that might break resolution order when all assets that are required are already cached.
