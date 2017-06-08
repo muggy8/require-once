@@ -83,7 +83,6 @@
 		var waitingForDoc = []
 		document.addEventListener("readystatechange", function(){
 			if (document.readyState == "complete"){
-                console.warn("dom loaded")
 				for(var i = 0; i < waitingForDoc.length; i++){
 					waitingForDoc[i]()
 				}
