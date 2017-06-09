@@ -249,17 +249,16 @@
 })(
 	this,
 	function(code){
-		var module = {},
-			requireOnce = this.requireOnce,
-			require_once = this.require_once,
+		var executionContext = Object.create(this),
+			module = {},
 			exporter = module.exports = module.export = function(output){
 				module.exports = output
 			},
-			results = eval(code)
+			results = eval.call(executionContext, code)
 
 		return {
 			output: results,
 			module: module
 		}
-	}
+	}.bind(this)
 )

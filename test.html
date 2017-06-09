@@ -9,10 +9,33 @@
 		</script>
 	</head>
 	<body>
-		<script src="require_once.min.js"></script>
+		<script src="require_once.js"></script>
+		<script>
+			"Use Strict"
+			var a = 5
+			;(function(context, safereval){
+				context.b = 10
+
+				context.recurTest = function(number){
+					if (number){
+						safereval("console.log(a + b + c); recurTest(--a)")
+					}
+				}
+
+				recurTest(a)
+			})(
+				this,
+				function(code){
+					var c = 15
+					//console.log(a, b, c)
+					eval(code)
+				}
+			)
+		</script>
 		<!-- <script src="extra-require.js"></script> -->
         <script src="order/1.js"></script>
 		<img width="100%" src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Cat_eyes_2007-2.jpg">
 		<!--<script src="test.js"></script>-->
+
 	</body>
 </html>
