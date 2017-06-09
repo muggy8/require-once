@@ -229,6 +229,7 @@
 				dependency = mixedDependency.browser || mixedDependency; // mixedDependency can be object or a URL string
 
 				seekOrGet(dependency, function(opperator){
+                    console.log(opperator)
 					if (opperator.result == "success"){
 						obtainedDependencies[index] = opperator //{xhr: xhrObject, returnVal: cachedReturnVal}
 					}
