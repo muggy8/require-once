@@ -1,4 +1,6 @@
-if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js");if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js");
+console.log(typeof requireOnce, typeof require_once)
+console.log(requireOnce, require_once)
+if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js")
 
 console.log("1.js has executed and is requireing 2.1.js, 3.1.js, 4.1.js and 5.js")
 requireOnce(
@@ -13,3 +15,4 @@ requireOnce(
         console.warn("1.js has fired and resolved")
     }
 )
+console.log(requireOnce, require_once)

@@ -1,4 +1,6 @@
-if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js");if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js");
+console.log(typeof requireOnce, typeof require_once)
+console.log(requireOnce, require_once)
+if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js");
 
 console.log("      2.3.js has executed and is requireing 5.js")
 requireOnce(

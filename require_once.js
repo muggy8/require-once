@@ -1,4 +1,7 @@
 (function(context, safeEval){
+    if (context.requireOnce || context.require_once){
+        return
+    }
 	var registry = {}
 
 	var seekOrGet = function(url, callback){
@@ -120,7 +123,7 @@
 		}
 	}
 
-	context.requireOnce = context.require_once = (context.requireOnce && context.require_once)? context.requireOnce : function(dependencies, callback, failed){
+	var requireOnce = context.require_once = context.requireOnce = function(dependencies, callback, failed){
 		if (!callback){
 			throw new Error("Success callback not defined")
 		}
@@ -183,6 +186,7 @@
                     xhrReadyCallbacks.push(dependencyLoadStateCheck)
                 }
 
+
                 // evaluate the script maybe
                 if (
                     opperator && // xhr did not fail
@@ -229,7 +233,7 @@
 				dependency = mixedDependency.browser || mixedDependency; // mixedDependency can be object or a URL string
 
 				seekOrGet(dependency, function(opperator){
-                    console.log(opperator)
+                    //console.log(opperator)
 					if (opperator.result == "success"){
 						obtainedDependencies[index] = opperator //{xhr: xhrObject, returnVal: cachedReturnVal}
 					}
@@ -245,21 +249,20 @@
 	}
 
 	if (typeof module != 'undefined'){
-		module.exports = context.requireOnce
+		module.exports = requireOnce
 	}
 })(
 	this,
 	function(code){
-		var executionContext = Object.create(this),
-			module = {},
+		var module = {},
 			exporter = module.exports = module.export = function(output){
 				module.exports = output
 			},
-			results = eval.call(executionContext, code)
+			results = eval(code)
 
 		return {
 			output: results,
 			module: module
 		}
-	}.bind(this)
+	}
 )
