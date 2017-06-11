@@ -104,11 +104,11 @@
 			var requestIndex = xhrs.push(xhr) - 1
 			xhr.addEventListener("loadend", function(){
 				// if something is waiting for xhr requests to finish call the first thing so it can start it's resolution cycle but only when the document is ready
-                waitForDocReady(function(){
-                    if (xhrReadyCallbacks.length){
-                        xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
-                    }
-                })
+				waitForDocReady(function(){
+					if (xhrReadyCallbacks.length){
+						xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
+					}
+				})
 			})
 			if (typeof potentialData != "undefined"){
 				xhr._send(potentialData)
@@ -164,48 +164,48 @@
 				}
 			},
 			dependencyLoadStateCheck = function(){
-                // this function will only be called when the doc is ready.
+				// this function will only be called when the doc is ready.
 				if (numberReturned == dependencies.length){ // all dependencies have returned
-                    var noXhrsLoading = xhrs.reduce(function(truthness, xhr){
-                                           //xhr item is an XMLHttpRequest object  || xhr item is a script tag
-                        return truthness && (xhr.readyState == XMLHttpRequest.DONE || xhr.readyState == "complete")
-                    }, true)
+					var noXhrsLoading = xhrs.reduce(function(truthness, xhr){
+										   //xhr item is an XMLHttpRequest object  || xhr item is a script tag
+						return truthness && (xhr.readyState == XMLHttpRequest.DONE || xhr.readyState == "complete")
+					}, true)
 
-    				noXhrsLoading && finalResolution()
+					noXhrsLoading && finalResolution()
 				}
 			},
-            resolutionOrderSet = false,
-            potentialScriptEvaluation = function(opperator){
-                // push the current execution callback to the stack once first
-                if (!resolutionOrderSet){
-                    resolutionOrderSet = true
-                    xhrReadyCallbacks.push(dependencyLoadStateCheck)
-                }
+			resolutionOrderSet = false,
+			potentialScriptEvaluation = function(opperator){
+				// push the current execution callback to the stack once first
+				if (!resolutionOrderSet){
+					resolutionOrderSet = true
+					xhrReadyCallbacks.push(dependencyLoadStateCheck)
+				}
 
-                // evaluate the script maybe
-                if (
-                    opperator && // xhr did not fail
-                    opperator.request.getResponseHeader("Content-Type").match(/javascript/i) && // is a javascript file
-                    typeof opperator.evaluater == "undefined" // has not been evaluated already
-                ){
-                    //console.log("evaluating", opperator.request.responseURL)
-                    opperator.evaluater = safeEval(opperator.request.responseText)
-                }
-                else if (
-                    opperator && // xhr did not fail
-                    typeof opperator.returnVal != "undefined" && // has not been evaluated already
-                    !opperator.request.getResponseHeader("Content-Type").match(/javascript/i)  // file is not javascript
-                ){
-                    opperator.returnVal = opperator.request.responseText
-                }
+				// evaluate the script maybe
+				if (
+					opperator && // xhr did not fail
+					opperator.request.getResponseHeader("Content-Type").match(/javascript/i) && // is a javascript file
+					typeof opperator.evaluater == "undefined" // has not been evaluated already
+				){
+					//console.log("evaluating", opperator.request.responseURL)
+					opperator.evaluater = safeEval(opperator.request.responseText)
+				}
+				else if (
+					opperator && // xhr did not fail
+					typeof opperator.returnVal != "undefined" && // has not been evaluated already
+					!opperator.request.getResponseHeader("Content-Type").match(/javascript/i)  // file is not javascript
+				){
+					opperator.returnVal = opperator.request.responseText
+				}
 
-                // call the next step in the chain if no doc is ready
-                // in the case that the doc isn't ready, the xhr onload callback will call it instead (above)
-                if (document.readyState == "complete"){
-                    dependencyLoadStateCheck()
-                }
+				// call the next step in the chain if no doc is ready
+				// in the case that the doc isn't ready, the xhr onload callback will call it instead (above)
+				if (document.readyState == "complete"){
+					dependencyLoadStateCheck()
+				}
 
-            }
+			}
 
 		// actual loging for getting the dependencies and calling them
 		dependencies.forEach(function(mixedDependency, index){
@@ -237,7 +237,7 @@
 					}
 					numberReturned++
 					//ifAllDependenciesLoaded()
-                    potentialScriptEvaluation(opperator)
+					potentialScriptEvaluation(opperator)
 				})
 			}
 		})
