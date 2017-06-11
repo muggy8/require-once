@@ -129,7 +129,7 @@ and now that you are loading your dependencies and modules off the network in yo
 If you are like me and you like to write code that is shared between Node and Browser for whatever reason, you can do so in the following way
 
 ```javascipt
-if (typeof requireOnce == 'undefined') var requireOnce = require("require_once");
+var requireOnce = (typeof require_once == "function")? require_once : require("./require_once.js")
 
 requireOnce([
     {browser: "/path/to/dependency1.js", server:"dependency"}
@@ -155,6 +155,27 @@ The library will take care of the rest with XMLHttpRequests while in the browser
 MIT = free for all yay?
 
 ## Changelog:
+
+#### 0.4.0
+This update is yet another update that would cause potentially breaking changes to the code However it is for the best as it is a before the validation script for checking if we are able to use require once is
+```javascript
+if (typeof requireOnce != "undefined") var requireOnce = require("require_once");
+```
+
+however because of hoisting this line actually become
+
+```javascript
+var requireOnce;
+if (typeof requireOnce != "undefined") requireOnce = require("require_once");
+```
+
+which means that in the case that you are loading require_once off the main script that's no big deal but if a script is being required the declaration above would override the global requireOnce function and as a result the workaround would be to declare a requireOnce AND require_once within the scope of the required script's execution scope. This is not the most ideal and would likely lead to more hacks down the line in order to make things work (eg: potential issues in Electrons dev environment if i ever get around to supporting that). In order to avoid this problem the code that checks for if requireOnce is useable or not should be modified to
+
+```javascript
+var requireOnce = (typeof require_once == "function")? require_once : require("./require_once.js");
+```
+
+this line declares a locally scoped version of requireOnce based on the globally scoped require_once or uses node's require function to get the function. This way it simplifies the need for require once being declared in the code execution scope just to have things work. If you are exclusively running require_once from within the browser then there should be no problem for you with this update.
 
 #### 0.3.0
 This update optimizes the loading process and by execute all dependencies as soon as they load rather than waiting for all dependencies on a certain level to load first before executing on that level of dependencies. There is a sizeable amount of change to the underlying execution logic of the library and as a result you may want to stay on the previous release. see the graph below for tldr;
