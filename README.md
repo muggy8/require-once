@@ -179,3 +179,28 @@ var requireOnce = (typeof require_once == "function")? require_once : require("r
 ```
 
 this line declares a locally scoped version of requireOnce based on the globally scoped require_once or uses node's require function to get the function. This way it simplifies the need for require once being declared in the code execution scope just to have things work. If you are exclusively running require_once from within the browser then there should be no problem for you with this update.
+
+#### 0.3.0
+This update optimizes the loading process and by execute all dependencies as soon as they load rather than waiting for all dependencies on a certain level to load first before executing on that level of dependencies. There is a sizeable amount of change to the underlying execution logic of the library and as a result you may want to stay on the previous release. see the graph below for tldr;
+
+Before | After
+------ | -------
+![Before](http://i68.tinypic.com/14cgzdy.jpg)) | ![Before](http://i68.tinypic.com/14cgzdy.jpg))
+
+#### 0.2.4
+Fixed an error that might break resolution order when all assets that are required are already cached.
+
+#### 0.2.3
+require_once needed to hijack the XMLHttpRequest's send() method to do some fancy footwork to keep track of when to fire callbacks and what not. Due to an oversight, this meant that the XMLHttpRequest's normal send function doesn't actually work the way it is supposed to (though you can use the newly added _send() function instead) but that wasn't supposed to be the case. This fixed the bug and although the hijacking of the send() function is still present, the XMLHttpRequest.send function will work as intended.
+
+#### 0.2.2
+Fixed a bug that caused loaded scripts to be evaluated multiple times when the same script is required by multiple sources.
+
+#### 0.2.1
+recursive asset load beings when the code is called and recursive resolution begins when doc loaded or asset loaded which ever happens first
+
+#### 0.2.0
+Made require_once a recursive resolution rather than having it be a linlar resolution. If files required with require_once also make XMLHttpRequests (like calling requireOnce) then parent callbacks wont fire till all subiquent requests are complete and allowing for better support for loading nested dependencies.
+
+#### 0.1.0
+Initial Release
