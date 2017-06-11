@@ -156,6 +156,9 @@ MIT = free for all yay?
 
 ## Changelog:
 
+#### 0.4.1
+Fixed a bug that caused the resolution order to be forwards instead of backwards
+
 #### 0.4.0
 This update is yet another update that would cause potentially breaking changes to the code However it is for the best as it is a before the validation script for checking if we are able to use require once is
 ```javascript
