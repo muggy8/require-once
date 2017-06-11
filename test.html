@@ -1,42 +1,16 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<script src="require_once.js"></script>
 		<title>testing require-once.js</title>
-		<script>
-            /*document.addEventListener('readystatechange', function(ev){
-                console.log("ready state changed", document.readystate)
-            })*/
-		</script>
 	</head>
 	<body>
-		<script>
-			"Use Strict"
-			var a = 5
-			;(function(context, safereval){
-				context.b = 10
-
-				context.recurTest = function(number){
-					if (number){
-						safereval("console.log(a + b + c); recurTest(--a)")
-					}
-				}
-
-				recurTest(a)
-			})(
-				this,
-				function(code){
-					var c = 15
-					//console.log(a, b, c)
-					eval(code)
-				}
-			)
-		</script>
-		<script src="require_once.js"></script>
 		<!-- <script src="https://unpkg.com/require_once@0.2.4"></script> -->
 		<!-- <script src="extra-require.js"></script> -->
-        <script src="order/1.js"></script>
+
 		<img width="100%" src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Cat_eyes_2007-2.jpg">
-		<!--<script src="test.js"></script>-->
+		<!-- <script src="extra-require.js"></script> -->
+		<script src="order/1.js"></script>
 
 	</body>
 </html>

@@ -1,6 +1,4 @@
-console.log(typeof requireOnce, typeof require_once)
-console.log(requireOnce, require_once)
-if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js");
+var requireOnce = (typeof require_once == "function")? require_once : require("./require_once.js")
 
 console.log("  4.1.js has executed and is requireing 4.2.js and 5.js")
 requireOnce(
@@ -8,7 +6,8 @@ requireOnce(
         "/order/4.2.js",
         "/order/5.js"
     ],
-    function(){
+    function(_1, something){
         console.log("  4.1.js requires 4.2.js and 5.js has resolved")
+        console.log("  5.js returned", something)
     }
 )

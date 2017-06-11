@@ -1,7 +1,7 @@
 (function(context, safeEval){
-    if (context.requireOnce || context.require_once){
-        return
-    }
+	if (context.requireOnce && context.rquire_once && context.requireOnce === context.rquire_once){
+		return
+	}
 	var registry = {}
 
 	var seekOrGet = function(url, callback){
@@ -83,20 +83,16 @@
 	}
 
 	if (typeof document!= "undefined" && typeof XMLHttpRequest != "undefined"){ // dont do this if in node
-		var waitingForDoc = []
-		document.addEventListener("readystatechange", function(){
-			if (document.readyState == "complete"){
-				for(var i = 0; i < waitingForDoc.length; i++){
-					waitingForDoc[i]()
-				}
-			}
-		})
 		function waitForDocReady (callback) {
 			if (document.readyState == "complete"){
 				callback()
 			}
 			else {
-				waitingForDoc.push(callback)
+				document.addEventListener("readystatechange", function(){
+					if (document.readyState == "complete"){
+						callback()
+					}
+				})
 			}
 		}
 
@@ -123,7 +119,7 @@
 		}
 	}
 
-	var requireOnce = context.require_once = context.requireOnce = function(dependencies, callback, failed){
+	context.requireOnce = context.require_once = function(dependencies, callback, failed){
 		if (!callback){
 			throw new Error("Success callback not defined")
 		}
@@ -186,7 +182,6 @@
                     xhrReadyCallbacks.push(dependencyLoadStateCheck)
                 }
 
-
                 // evaluate the script maybe
                 if (
                     opperator && // xhr did not fail
@@ -233,7 +228,7 @@
 				dependency = mixedDependency.browser || mixedDependency; // mixedDependency can be object or a URL string
 
 				seekOrGet(dependency, function(opperator){
-                    //console.log(opperator)
+					console.log(opperator)
 					if (opperator.result == "success"){
 						obtainedDependencies[index] = opperator //{xhr: xhrObject, returnVal: cachedReturnVal}
 					}
@@ -249,20 +244,19 @@
 	}
 
 	if (typeof module != 'undefined'){
-		module.exports = requireOnce
+		module.exports = context.requireOnce
 	}
 })(
 	this,
 	function(code){
-		var module = {},
-			exporter = module.exports = module.export = function(output){
-				module.exports = output
-			},
-			results = eval(code)
+		var module = {}
+		module.export = module.exports = function(o){
+			module.exports = o
+		}
 
 		return {
-			output: results,
-			module: module
+			module: module,
+			output: eval(code)
 		}
 	}
 )

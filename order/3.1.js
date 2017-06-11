@@ -1,6 +1,4 @@
-console.log(typeof requireOnce, typeof require_once)
-console.log(requireOnce, require_once)
-if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js");
+var requireOnce = (typeof require_once == "function")? require_once : require("./require_once.js")
 
 console.log("  3.1.js has executed and is requireing 3.2.js")
 requireOnce(

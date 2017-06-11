@@ -1,4 +1,4 @@
-if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js");if (typeof requireOnce == 'undefined') var requireOnce = require("./require_once.js");
+var requireOnce = (typeof require_once == "function")? require_once : require("./require_once.js")
 
 requireOnce([
     'https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js',
@@ -9,8 +9,8 @@ requireOnce([
     "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
 ], function(jquery, uiCSS, jqueryUI, hammerjs, myTest){
 
-    myTest(123)
-
+    //myTest(123)
+	console.log(myTest)
 	$("head")
         .append(
             $("<style></style>").text(uiCSS)
