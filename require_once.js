@@ -18,7 +18,7 @@
 						if ((connection.status >= 200 && connection.status < 300) || connection.status == 304) {
 							// success
 							queue.result = 'success'
-							for (var i = 0; i < queue.waiters.length; i++){
+							for (var i = queue.waiters.length-1; i >= 0 ; i--){
 								if (i == 0){
 									queue.waiters[i](queue)
 								}
@@ -72,7 +72,7 @@
 
 		// is a completely new URL not known yet
 		else {
-		//	console.log("new request", url)
+			//console.log("new request", url)
 			attemptConnection(
 				registry[url] = {
 					waiters: [callback],
@@ -128,6 +128,7 @@
 		var obtainedDependencies = [],
 			numberReturned = 0,
 			finalResolution = function(){
+				//console.log("resolving dependency list", dependencies)
 				// resolve "returnVal" for all dependencies
 				obtainedDependencies.forEach(function(opperator, index){
 					if (opperator && opperator.evaluater){
