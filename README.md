@@ -156,6 +156,9 @@ MIT = free for all yay?
 
 ## Changelog:
 
+#### 0.4.2
+Fixed a bug that made the require_once choke on null requires
+
 #### 0.4.1
 Fixed a bug that caused the resolution order to be forwards instead of backwards
 
