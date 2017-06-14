@@ -208,8 +208,11 @@
 
 			}
 
-		// actual loging for getting the dependencies and calling them
+		// actual logging for getting the dependencies and calling them
 		dependencies.forEach(function(mixedDependency, index){
+			if (!mixedDependency){
+				return 
+			}
 			var dependency
 			if (typeof require != 'undefined' && typeof XMLHttpRequest == 'undefined'){ // inside node
 				dependency = mixedDependency.server
