@@ -211,6 +211,8 @@
 		// actual logging for getting the dependencies and calling them
 		dependencies.forEach(function(mixedDependency, index){
 			if (!mixedDependency){
+				obtainedDependencies[index] = true
+				numberReturned++
 				return 
 			}
 			var dependency
