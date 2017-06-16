@@ -156,6 +156,12 @@ MIT = free for all yay?
 
 ## Changelog:
 
+#### 0.4.4
+Fixed a bug that made callbacks resolve twice sometimes.
+
+#### 0.4.3
+Actually Fixed a bug that was supposed to be fixed in 0.4.2
+
 #### 0.4.2
 Fixed a bug that made the require_once choke on null requires
 
