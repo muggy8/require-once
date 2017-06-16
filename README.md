@@ -156,6 +156,9 @@ MIT = free for all yay?
 
 ## Changelog:
 
+#### 0.4.5
+Removed Debugging "console.log" from min file
+
 #### 0.4.4
 Fixed a bug that made callbacks resolve twice sometimes.
 
