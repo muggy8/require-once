@@ -8,16 +8,16 @@
 		var requestUrl = url,
 			registryEntry = registry[url],
 			attemptConnection = function(queue){
-				var connection = queue.request = new XMLHttpRequest(),
+				var connection = queue.requestObject = new XMLHttpRequest(),
 					recur = function(){
 						attemptConnection(queue)
 					}
 
 				connection.onreadystatechange = function(){
-					if (connection.readyState == XMLHttpRequest.DONE){
+					if (connection.readyState == queue.requestObject.DONE){
 						if ((connection.status >= 200 && connection.status < 300) || connection.status == 304) {
 							// success
-							queue.result = 'success'
+							queue.result = true
 							for (var i = queue.waiters.length-1; i >= 0 ; i--){
 								if (i == 0){
 									queue.waiters[i](queue)
@@ -46,7 +46,7 @@
 						}
 
 						else {
-							queue.result = 'failed'
+							queue.result = false
 							// asset failed to load.
 							for (var i = 0; i < queue.waiters.length; i++){
 								queue.waiters[i](queue)
@@ -128,7 +128,6 @@
 		var obtainedDependencies = [],
 			numberReturned = 0,
 			finalResolution = function(){
-				//console.log("resolving dependency list", dependencies)
 				// resolve "returnVal" for all dependencies
 				obtainedDependencies.forEach(function(opperator, index){
 					if (opperator && opperator.evaluater){
@@ -156,13 +155,20 @@
 					failed.apply(context, applyArray)
 				}
 
-				//remove the last item in callback (self)
-				xhrReadyCallbacks.splice(xhrReadyCallbacks.length - 1, 1)
+                // mark this item as resolved
+                dependencyLoadStateCheck.resolved = true
 
-				// call the next item in the chain
-				if (xhrReadyCallbacks.length){
-					xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
-				}
+                // check the stack in reverse order and find unresolved items and resolve them
+                var stop = false
+                while (!stop && xhrReadyCallbacks.length){
+                    if (xhrReadyCallbacks[xhrReadyCallbacks.length - 1].resolved !== true){
+                        stop = true
+                        xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
+                    }
+                    else {
+        				xhrReadyCallbacks.splice(-1, 1)
+                    }
+                }
 			},
 			dependencyLoadStateCheck = function(){
 				// this function will only be called when the doc is ready.
@@ -181,26 +187,27 @@
 				if (!resolutionOrderSet){
 					resolutionOrderSet = true
 					xhrReadyCallbacks.push(dependencyLoadStateCheck)
+                    //console.warn("pushing dependency stack to callback stack", dependencies)
 				}
 
 				// evaluate the script maybe
 				if (
 					opperator && // xhr did not fail
-					opperator.request.getResponseHeader("Content-Type").match(/javascript/i) && // is a javascript file
+					opperator.requestObject.getResponseHeader("Content-Type").match(/javascript/i) && // is a javascript file
 					typeof opperator.evaluater == "undefined" // has not been evaluated already
 				){
-					//console.log("evaluating", opperator.request.responseURL)
-					opperator.evaluater = safeEval(opperator.request.responseText)
+					//console.log("evaluating", opperator.requestObject.responseURL)
+					opperator.evaluater = safeEval(opperator.requestObject.responseText)
 				}
 				else if (
 					opperator && // xhr did not fail
 					typeof opperator.returnVal != "undefined" && // has not been evaluated already
-					!opperator.request.getResponseHeader("Content-Type").match(/javascript/i)  // file is not javascript
+					!opperator.requestObject.getResponseHeader("Content-Type").match(/javascript/i)  // file is not javascript
 				){
-					opperator.returnVal = opperator.request.responseText
+					opperator.returnVal = opperator.requestObject.responseText
 				}
 
-				// call the next step in the chain if no doc is ready
+				// call the next step in the chain if doc is ready
 				// in the case that the doc isn't ready, the xhr onload callback will call it instead (above)
 				if (document.readyState == "complete"){
 					dependencyLoadStateCheck()
@@ -213,7 +220,7 @@
 			if (!mixedDependency){
 				obtainedDependencies[index] = true
 				numberReturned++
-				return 
+				return
 			}
 			var dependency
 			if (typeof require != 'undefined' && typeof XMLHttpRequest == 'undefined'){ // inside node
@@ -235,10 +242,10 @@
 
 				seekOrGet(dependency, function(opperator){
 					console.log(opperator)
-					if (opperator.result == "success"){
+					if (opperator.result === true){
 						obtainedDependencies[index] = opperator //{xhr: xhrObject, returnVal: cachedReturnVal}
 					}
-					else if (opperator.result = "failed"){
+					else if (opperator.result === false){
 						obtainedDependencies[index] = false
 					}
 					numberReturned++
