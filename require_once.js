@@ -148,27 +148,26 @@
 					}
 				})
 
-				if (successFlag){
+				if (successFlag && dependencyLoadStateCheck.resolved !== true){
+					//console.log("applying resolution for", dependencies)
 					callback.apply(context, applyArray)
 				}
-				else {
+				else if (!successFlag) {
 					failed.apply(context, applyArray)
 				}
 
-                // mark this item as resolved
-                dependencyLoadStateCheck.resolved = true
+				// mark this item as resolved
+				dependencyLoadStateCheck.resolved = true
+				//console.log("done resoling stack for", dependencies, xhrReadyCallbacks, dependencyLoadStateCheck.resolved)
 
-                // check the stack in reverse order and find unresolved items and resolve them
-                var stop = false
-                while (!stop && xhrReadyCallbacks.length){
-                    if (xhrReadyCallbacks[xhrReadyCallbacks.length - 1].resolved !== true){
-                        stop = true
-                        xhrReadyCallbacks[xhrReadyCallbacks.length - 1]()
-                    }
-                    else {
-        				xhrReadyCallbacks.splice(-1, 1)
-                    }
-                }
+				// check the stack in reverse order and find unresolved items and resolve them
+				while (xhrReadyCallbacks.length){
+					if (xhrReadyCallbacks.length !== 0){
+						var nextLink = xhrReadyCallbacks[xhrReadyCallbacks.length - 1]
+						xhrReadyCallbacks.splice(-1, 1)
+						nextLink()
+					}
+				}
 			},
 			dependencyLoadStateCheck = function(){
 				// this function will only be called when the doc is ready.
@@ -187,7 +186,7 @@
 				if (!resolutionOrderSet){
 					resolutionOrderSet = true
 					xhrReadyCallbacks.push(dependencyLoadStateCheck)
-                    //console.warn("pushing dependency stack to callback stack", dependencies)
+					//console.warn("pushing dependency stack to callback stack", dependencies)
 				}
 
 				// evaluate the script maybe
@@ -241,7 +240,7 @@
 				dependency = mixedDependency.browser || mixedDependency; // mixedDependency can be object or a URL string
 
 				seekOrGet(dependency, function(opperator){
-					console.log(opperator)
+					//console.log(opperator)
 					if (opperator.result === true){
 						obtainedDependencies[index] = opperator //{xhr: xhrObject, returnVal: cachedReturnVal}
 					}
