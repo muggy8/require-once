@@ -151,10 +151,20 @@ When requesting libraries, you can use the requireOnce and pass an array where e
 
 The library will take care of the rest with XMLHttpRequests while in the browser or via require() in node. if you do not pass a server property, or if you just use a string, the server wont bother trying to get the asset and will just return a false in that place. If this is the case you should have catches so when running your code on the server, you don't expect your asset to come in when a false is going to drop in it's place.
 
+## Road Map
+There's 2 things I particularly want to do with this project in the future.
+
+First off the project currently needs to hijack the XMLHttpRequest object and modify it to do it's opperations. This isn't really the most ideal solution to the problem but it was the first that came to mind. The most immediate goal is to remove the requiremnt for this library to hijack and mutate the XMLHttpRequest object. After this change has been made. I will mark this project officially as version 1.0.0 assuming stable.
+
+A bit farther out from now, I plan on adding a Gulp Task plugin that you can use with this plugin do crunch your files on deploy and create a single JS file that you include into your index.html. This ofcourse means that all your files must be serviced with something to require so you can test your project with a self including files while you are deployment code will ship with everything that can be packed into the single js file as possiable. When that happens it will likely be marked as Version 2.0.0 assuming stable. However this is not likely to happen for quite a while as this is a project that I embarked on for another project of my own and I probably wont be working on the packing feature until i'm ready to deploy that version of my own personal project
+
 ## Licence?
 MIT = free for all yay?
 
 ## Changelog:
+
+#### 0.4.6
+Should actually finally fix the bug that was causing the resolution function to resolve twice this time hopefully for real and forever.
 
 #### 0.4.5
 Removed Debugging "console.log" from min file
