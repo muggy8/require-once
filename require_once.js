@@ -257,6 +257,7 @@
 
 	if (typeof module != 'undefined'){
 		module.exports = context.requireOnce
+		context.requireOnce.build = require("require_once_builder.js")
 	}
 })(
 	this,
